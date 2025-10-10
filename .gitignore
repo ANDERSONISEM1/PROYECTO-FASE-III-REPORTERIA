@@ -4,3 +4,11 @@
 
 # Ignorar solución de Visual Studio
 marcador-app.sln
+
+# Ignorar dependencias
+node_modules/
+
+# Build o dist de proyectos
+dist/
+build/
+
