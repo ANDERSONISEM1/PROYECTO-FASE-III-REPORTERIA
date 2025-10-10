@@ -1,0 +1,72 @@
+version: "3.9"
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver2022
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD}"
+      MSSQL_PID: "Developer"
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+      - ./sql:/scripts:ro
+    healthcheck:
+      test: [ "CMD", "/opt/mssql-tools18/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "${MSSQL_SA_PASSWORD}", "-C", "-Q", "SELECT 1" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  db-init:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD}"
+    volumes:
+      - ./sql:/scripts:ro
+    entrypoint: ["/bin/bash", "-lc"]
+    command: >
+      "/opt/mssql-tools18/bin/sqlcmd -S sqlserver -U sa -P ${MSSQL_SA_PASSWORD} -C -i /scripts/init.sql"
+    restart: "no"
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    image: marcador-api:prod
+    container_name: marcador-api
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Production"
+      ASPNETCORE_URLS: "http://0.0.0.0:5080"
+      ConnectionStrings__Default: "Server=sqlserver,1433;Database=MarcadorBasket;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;"
+      Jwt__Issuer: "MarcadorBasket"
+      Jwt__Audience: "MarcadorBasket.Client"
+      Jwt__Key: "${JWT_KEY}"
+      Jwt__AccessTokenMinutes: "480"
+    ports:
+      - "5080:5080"
+    restart: unless-stopped
+    # Healthcheck en Dockerfile
+
+  frontend:
+    build:
+      context: ./web
+    image: marcador-frontend:latest
+    container_name: marcador-frontend
+    depends_on:
+      - api
+    ports:
+      - "4200:80"   # 4200 externo -> 80 interno (nginx)
+    restart: unless-stopped
+    # Healthcheck en Dockerfile
+
+volumes:
+  mssql_data:

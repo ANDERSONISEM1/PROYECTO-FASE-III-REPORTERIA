@@ -1,0 +1,6 @@
+# Ignorar archivo de entorno global
+.env
+.env.*
+
+# Ignorar solución de Visual Studio
+marcador-app.sln
