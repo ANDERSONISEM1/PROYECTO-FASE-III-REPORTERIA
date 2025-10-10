@@ -1,0 +1,207 @@
+<div class="equipos-container">
+  <div class="equipos-header">
+    <h2>Equipos</h2>
+    <input type="text" class="search-box" placeholder="Buscar equipo..." [(ngModel)]="filtro">
+    <button class="btn-primary" type="button" (click)="openNew()">Nuevo Equipo</button>
+  </div>
+
+  <div class="equipos-table">
+    <table>
+      <thead>
+        <tr>
+          <th>NOMBRE</th>
+          <th>CIUDAD</th>
+          <th>ABREV.</th>
+          <th>ACTIVO</th>
+          <th>FECHA CREACIÓN</th>
+          <th>LOGO</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let t of equipos | filterBy:filtro; trackBy: trackById">
+          <td>{{ t.nombre }}</td>
+          <td>{{ t.ciudad }}</td>
+          <td>{{ t.abreviatura }}</td>
+          <td>{{ t.activo ? 'Sí' : 'No' }}</td>
+          <td>{{ t.fecha_creacion }}</td>
+          <td>
+            <ng-container *ngIf="t.logo; else noLogo">
+              <img [src]="t.logo" alt="logo" class="logo-thumb" />
+            </ng-container>
+            <ng-template #noLogo>—</ng-template>
+          </td>
+          <td class="actions">
+            <button class="btn-action" type="button" (click)="openEdit(t)">Editar</button>
+            <button class="btn-action danger" type="button" (click)="requestDelete(t)">Eliminar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== Modal: Editar ===== -->
+<div class="modal-backdrop" *ngIf="showEdit" (click)="backdrop($event)">
+  <div class="modal-card edit">
+    <div class="modal-header">
+      <h3>Editar Equipo</h3>
+      <button class="close-x" type="button" (click)="closeModals()">✖</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-col">
+          <label>Nombre</label>
+          <input type="text" [(ngModel)]="form.nombre" (input)="clearNameError()" />
+          <!-- MENSAJE DE NOMBRE DUPLICADO -->
+          <div *ngIf="nameError && showEdit" style="color:#e53935;font-size:12px;margin-top:4px;">
+            {{ nameError }}
+          </div>
+        </div>
+        <div class="form-col">
+          <label>Ciudad</label>
+          <input type="text" [(ngModel)]="form.ciudad" />
+        </div>
+      </div>
+      <div class="form-grid mt12">
+        <div class="form-col">
+          <label>Abreviatura</label>
+          <input type="text" maxlength="6" [(ngModel)]="form.abreviatura" />
+        </div>
+        <div class="form-col" style="display:flex;align-items:center;gap:10px;">
+          <label style="margin:0;">Activo</label>
+          <input type="checkbox" [(ngModel)]="form.activo" />
+        </div>
+      </div>
+      <div class="form-row mt12">
+        <label>Fecha creación</label>
+        <input type="date" [ngModel]="form.fecha_creacion" disabled />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" (click)="closeModals()">Cancelar</button>
+      <button class="btn-primary" type="button" (click)="saveEdit()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Modal: Nuevo Equipo ===== -->
+<div class="modal-backdrop" *ngIf="showNew" (click)="backdrop($event)">
+  <div class="modal-card edit">
+    <div class="modal-header">
+      <h3>Nuevo Equipo</h3>
+      <button class="close-x" type="button" (click)="closeModals()">✖</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-col">
+          <label>Nombre</label>
+          <input type="text" [(ngModel)]="form.nombre" (input)="clearNameError()" />
+          <!-- MENSAJE DE NOMBRE DUPLICADO -->
+          <div *ngIf="nameError && showNew" style="color:#e53935;font-size:12px;margin-top:4px;">
+            {{ nameError }}
+          </div>
+        </div>
+        <div class="form-col">
+          <label>Ciudad</label>
+          <input type="text" [(ngModel)]="form.ciudad" />
+        </div>
+      </div>
+      <div class="form-grid mt12">
+        <div class="form-col">
+          <label>Abreviatura</label>
+          <input type="text" maxlength="6" [(ngModel)]="form.abreviatura" />
+        </div>
+        <div class="form-col">
+          <label>Logo (imagen)</label>
+          <input type="file" accept="image/*" (change)="onLogoSelected($event)" />
+        </div>
+      </div>
+
+      <div class="mt12" *ngIf="form.logo">
+        <label>Preview</label>
+        <div><img [src]="form.logo" class="logo-thumb" style="width:64px;height:64px;border-radius:8px;"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" (click)="closeModals()">Cancelar</button>
+      <button class="btn-primary" type="button" (click)="saveNew()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Modal: Confirmación (jugadores + resumen de partidos) ===== -->
+<div class="modal-backdrop" *ngIf="showConfirm" (click)="backdrop($event)">
+  <div class="modal-card confirm small">
+    <div class="modal-header">
+      <h3>Confirmación</h3>
+      <button class="close-x" type="button" (click)="closeModals()">✖</button>
+    </div>
+
+    <div class="modal-body">
+      <p class="mb8">¿Está seguro que desea eliminar el equipo <strong>{{ selectedName }}</strong>?</p>
+
+      <!-- Jugadores -->
+      <ng-container *ngIf="confirmInfo.totalJugadores > 0">
+        <p class="mb6">
+          Este equipo tiene <strong>{{ confirmInfo.totalJugadores }}</strong> jugador(es).
+          <br><small class="muted">Si confirma, también se eliminarán estos jugadores.</small>
+        </p>
+        <ul class="list-plain" style="max-height:140px;overflow:auto;margin:0 0 8px 0;padding-left:18px;">
+          <li *ngFor="let j of confirmInfo.jugadores">
+            <span *ngIf="j.dorsal">#{{ j.dorsal }} — </span>{{ j.nombres }} {{ j.apellidos }}
+          </li>
+        </ul>
+      </ng-container>
+
+      <!-- Resumen partidos (informativo) -->
+      <ng-container *ngIf="confirmInfo.partidos.total > 0; else sinPartidos">
+        <div class="warning-box" style="margin-top:6px;">
+          <ul class="list-plain" style="margin:0;padding-left:18px;">
+            <li *ngIf="confirmInfo.partidos.programado">Programado: {{ confirmInfo.partidos.programado }}</li>
+            <li *ngIf="confirmInfo.partidos.enCurso">En curso: {{ confirmInfo.partidos.enCurso }}</li>
+            <li *ngIf="confirmInfo.partidos.cancelado">Cancelado: {{ confirmInfo.partidos.cancelado }}</li>
+            <li *ngIf="confirmInfo.partidos.suspendido">Suspendido: {{ confirmInfo.partidos.suspendido }}</li>
+          </ul>
+        </div>
+      </ng-container>
+
+      <ng-template #sinPartidos>
+        <small class="muted">Esta acción es permanente.</small>
+      </ng-template>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" (click)="closeModals()">No</button>
+      <button class="btn-primary danger" type="button" (click)="doDelete()">Sí</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Modal: BLOQUEADO por partidos ===== -->
+<div class="modal-backdrop" *ngIf="showBlocked" (click)="backdrop($event)">
+  <div class="modal-card confirm small">
+    <div class="modal-header">
+      <h3>No se puede eliminar</h3>
+      <button class="close-x" type="button" (click)="closeModals()">✖</button>
+    </div>
+    <div class="modal-body">
+      <p class="mb8">
+        El equipo <strong>{{ selectedName }}</strong> está ligado a uno o más partidos,
+        por lo que no puede eliminarse.
+      </p>
+      <ul class="list-plain" style="margin:0 0 8px 18px;">
+        <li>Total: {{ confirmInfo.partidos.total }}</li>
+        <li *ngIf="confirmInfo.partidos.programado">Programado: {{ confirmInfo.partidos.programado }}</li>
+        <li *ngIf="confirmInfo.partidos.enCurso">En curso: {{ confirmInfo.partidos.enCurso }}</li>
+        <li *ngIf="confirmInfo.partidos.finalizado">Finalizado: {{ confirmInfo.partidos.finalizado }}</li>
+        <li *ngIf="confirmInfo.partidos.cancelado">Cancelado: {{ confirmInfo.partidos.cancelado }}</li>
+        <li *ngIf="confirmInfo.partidos.suspendido">Suspendido: {{ confirmInfo.partidos.suspendido }}</li>
+      </ul>
+      <small class="muted">Elimine esos partidos primero y luego vuelva a intentar.</small>
+    </div>
+    <div class="modal-footer">
+      <button type="button" (click)="closeModals()">Entendido</button>
+    </div>
+  </div>
+</div>
