@@ -41,8 +41,9 @@ Route::get('/report/jugadores/pdf',  [JugadoresController::class, 'pdf']); // NU
 
 Route::post('/admin/sync/partidos', [PartidosSyncController::class, 'sync']);
 Route::get('/report/partidos',      [PartidosController::class, 'index']);
-
+Route::get('/report/partidos/pdf', [PartidosController::class, 'pdf']); 
 
 
 Route::post('/admin/sync/roster', [RosterSyncController::class, 'sync']);
 Route::get('/report/roster',      [RosterController::class, 'index']);
+Route::get('/report/roster/pdf',[RosterController::class, 'pdf']);   // 👈 PDF Roster

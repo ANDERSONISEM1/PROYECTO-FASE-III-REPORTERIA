@@ -21,7 +21,7 @@ class PartidosController extends Controller
     /**
      * GET /api/report/partidos
      * Columnas exactas: equipo_local, equipo_visitante, fecha, hora, marcador_final
-     * Filtros opcionales: ?desde=YYYY-MM-DD&hasta=YYYY-MM-DD
+     * Filtros: ?desde=YYYY-MM-DD&hasta=YYYY-MM-DD
      */
     public function index(Request $req)
     {
@@ -40,8 +40,11 @@ class PartidosController extends Controller
 
         $total = (int) $q->count();
 
-        $rows = $q->orderBy('fecha')->orderBy('hora')
-            ->offset($offset)->limit($pageSize)->get();
+        $rows = $q->orderBy('fecha')
+            ->orderBy('hora')
+            ->offset($offset)
+            ->limit($pageSize)
+            ->get();
 
         $columns = [
             ['key' => 'equipo_local',     'title' => 'equipo_local'],
@@ -52,5 +55,49 @@ class PartidosController extends Controller
         ];
 
         return response()->json(compact('columns','rows','total','page','pageSize'));
+    }
+
+    /** GET /api/report/partidos/pdf */
+    public function pdf(Request $req)
+    {
+        // Mantener “tiempo real”
+        $this->sync->syncPartidosDiffAndDelete();
+
+        // Parámetros
+        $all = (int) $req->query('all', 0) === 1; // all=1 => sin paginar
+        [$page, $pageSize, $offset] = $this->paginate($req);
+
+        $desde = $req->query('desde');
+        $hasta = $req->query('hasta');
+
+        // Base igual que index() sobre la VISTA
+        $q = DB::connection('mysql')->table('vw_report_partidos');
+        if ($desde && $hasta) {
+            $q->whereBetween('fecha', [$desde, $hasta]);
+        }
+        $q->orderBy('fecha')->orderBy('hora');
+
+        if (!$all) {
+            $q->offset($offset)->limit($pageSize);
+        }
+
+        $rows = $q->get();
+
+        // Meta
+        $meta = [
+            'titulo'   => 'Reporte de Partidos',
+            'rango'    => ($desde && $hasta) ? "Del {$desde} al {$hasta}" : 'Sin filtro de fechas',
+            'alcance'  => $all ? 'Todo completo' : "Página {$page} (máx. {$pageSize} filas)",
+            'generado' => now()->format('d/m/Y G:i'),
+        ];
+
+        // Render blade → Dompdf
+        $html = view('pdf.partidos', compact('rows','meta'))->render();
+
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadHTML($html)->setPaper('letter', 'portrait');
+
+        return $pdf->download('partidos.pdf');
+        // o: return $pdf->stream('partidos.pdf');
     }
 }

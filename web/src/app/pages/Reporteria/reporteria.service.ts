@@ -90,5 +90,41 @@ getEquiposPdfUrl(params: {
   return `/api/report/equipos/pdf?${q.toString()}`;
 }
 
+getPartidosPdfUrl(params: {
+  desde?: string;
+  hasta?: string;
+  all?: boolean;
+  page?: number;
+  pageSize?: number;
+}) {
+  const q = new URLSearchParams();
+  if (params.desde) q.set('desde', params.desde);
+  if (params.hasta) q.set('hasta', params.hasta);
+  if (params.all) q.set('all', '1'); // all=1 => sin paginar
+  if (!params.all) {
+    if (params.page) q.set('page', String(params.page));
+    if (params.pageSize) q.set('pageSize', String(params.pageSize));
+  }
+  return `/api/report/partidos/pdf?${q.toString()}`;
+}// En ReporteriaService
+getRosterPdfUrl(params: {
+  partido_id?: string;
+  desde?: string;
+  hasta?: string;
+  all?: boolean;
+  page?: number;
+  pageSize?: number;
+}) {
+  const q = new URLSearchParams();
+  if (params.partido_id) q.set('partido_id', params.partido_id);
+  if (params.desde) q.set('desde', params.desde);
+  if (params.hasta) q.set('hasta', params.hasta);
+  if (params.all) q.set('all', '1'); // all=1 => sin paginar
+  if (!params.all) {
+    if (params.page) q.set('page', String(params.page));
+    if (params.pageSize) q.set('pageSize', String(params.pageSize));
+  }
+  return `/api/report/roster/pdf?${q.toString()}`;
+}
 
 }

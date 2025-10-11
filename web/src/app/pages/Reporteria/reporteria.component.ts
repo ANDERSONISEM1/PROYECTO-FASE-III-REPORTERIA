@@ -234,6 +234,31 @@ export class ReporteriaComponent implements OnInit {
       window.open(url, '_blank');
       return;
     }
+      if (this.state.tab === 'partidos') {
+    const disableDates = this.todo;
+    const url = this.api.getPartidosPdfUrl({
+      desde: disableDates ? undefined : (this.state.desde || undefined),
+      hasta: disableDates ? undefined : (this.state.hasta || undefined),
+      all: this.todo,
+      page: this.state.page,
+      pageSize: this.state.pageSize,
+    });
+    window.open(url, '_blank');
+    return;
+  }
+   if (this.state.tab === 'roster') {
+    const disableDates = this.todo;
+    const url = this.api.getRosterPdfUrl({
+      partido_id: this.state.partidoId || undefined,
+      desde: disableDates ? undefined : (this.state.desde || undefined),
+      hasta: disableDates ? undefined : (this.state.hasta || undefined),
+      all: this.todo,
+      page: this.state.page,
+      pageSize: this.state.pageSize,
+    });
+    window.open(url, '_blank');
+    return;
+  }
 
     // Las otras pestañas quedan igual por ahora
     const scope = this.todo

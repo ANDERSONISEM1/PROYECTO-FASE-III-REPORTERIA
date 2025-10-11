@@ -7,6 +7,8 @@
 .angular/
 .DS_Store
 Thumbs.db
+ehthumbs.db
+desktop.ini
 
 # Archivos de entorno locales
 .env
@@ -33,10 +35,6 @@ npm-debug.log
 yarn-error.log
 pnpm-debug.log
 
-# Archivos temporales del sistema operativo
-ehthumbs.db
-desktop.ini
-
 # IDEs y herramientas
 .idea/
 *.iml
@@ -44,10 +42,5 @@ desktop.ini
 *.bak
 *.tmp
 
-# Configuración de proxy local (si no quieres subirla)
-proxy.conf.json
-
-# Archivos de configuración local opcional
-tsconfig.app.json
-tsconfig.spec.json
-tsconfig.worker.json
+# Configuración de proxy local (si contiene IPs privadas)
+# proxy.conf.json
