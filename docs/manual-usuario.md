@@ -39,7 +39,7 @@ El sistema está dividido en tres módulos principales:
 
 ## 🔐 Autenticación con JWT
 
-El sistema implementa autenticación **segura mediante JSON Web Tokens (JWT)** para los usuarios administradores.
+El sistema implementa autenticación **segura mediante JSON Web Tokens (JWT)** para los usuarios.
 
 ### 🔑 Pasos para iniciar sesión
 
@@ -56,7 +56,7 @@ El sistema implementa autenticación **segura mediante JSON Web Tokens (JWT)** p
 
 ### 🔒 Cierre de sesión
 
-- Haga clic en salir (abajo a la izquierda).  
+- Haga clic en salir (abajo a la izquierda), redirige a la pantalla de login.  
 - Esto eliminará el token JWT y redirigirá al login.
 
 ![Pantalla de inicio de sesión](img/logout.png)
@@ -108,17 +108,23 @@ Interfaz administrativa para el anotador o árbitro principal.
 
 #### 🕹️ Controles disponibles:
 - **Equipos y jugadores:** permite seleccionar equipos y roster de jugadores.
+
 ![Equipos](img/equipo-roster.png)
-- **Puntos:** sumar o restar 1, 2 o 3 puntos.  
+- **Puntos:** sumar o restar 1, 2 o 3 puntos. 
+
 ![Puntos](img/puntos.png)
 - **Tiempo:** iniciar, pausar, reiniciar y finalizar el reloj.  
 - **Tiempos muertos:** agregar o restar tiempos cortos/largos. 
+
 ![Tiempos](img/tiempo.png)
-- **Cuartos:** avanzar, retroceder o iniciar prórroga.  
+- **Cuartos:** avanzar, retroceder o iniciar prórroga. 
+
 ![Cuartos](img/cuartos.png)
-- **Faltas:** registrar faltas por jugador (5 faltas = fuera del juego).  
+- **Faltas:** registrar faltas por jugador (5 faltas = fuera del juego).
+
 ![Cuartos](img/faltas.png)
 - **Control general:** reiniciar o guardar partido.
+
 ![Control-general](img/control-general.png)
 
 ---
