@@ -22,21 +22,21 @@ type TabKey = 'jugadores' | 'equipos' | 'partidos' | 'roster';
       </div>
 
       <div class="filter-bar">
-        <!-- Fecha Inicio -->
+        <!-- Fecha Inicio (INDEPENDIENTE POR PESTAÑA) -->
         <div class="field">
           <span class="label">Fecha Inicio</span>
           <input type="date"
-                 [(ngModel)]="state.desde"
-                 (ngModelChange)="fetchAndRender()"
+                 [value]="currentDates.desde"
+                 (input)="onDateChange('desde', $event)"
                  [disabled]="todo"/>
         </div>
 
-        <!-- Fecha Fin -->
+        <!-- Fecha Fin (INDEPENDIENTE POR PESTAÑA) -->
         <div class="field">
           <span class="label">Fecha Fin</span>
           <input type="date"
-                 [(ngModel)]="state.hasta"
-                 (ngModelChange)="fetchAndRender()"
+                 [value]="currentDates.hasta"
+                 (input)="onDateChange('hasta', $event)"
                  [disabled]="todo"/>
         </div>
 
@@ -46,13 +46,13 @@ type TabKey = 'jugadores' | 'equipos' | 'partidos' | 'roster';
           <div class="switch-wrap">
             <span class="switch-text">Todo completo</span>
             <label class="switch" aria-label="Todo completo">
-              <input type="checkbox" [(ngModel)]="todo" />
+              <input type="checkbox" [(ngModel)]="todo" (change)="fetchAndRender()"/>
               <span class="slider"></span>
             </label>
           </div>
         </div>
 
-        <!-- Filtro por equipo (solo Jugadores) -->
+        <!-- Filtro por equipo (SOLO Jugadores) -->
         <div class="field" *ngIf="state.tab==='jugadores'">
           <span class="label">Filtrar por Equipo</span>
           <select [(ngModel)]="state.equipoId" (change)="fetchAndRender()">
@@ -61,13 +61,13 @@ type TabKey = 'jugadores' | 'equipos' | 'partidos' | 'roster';
           </select>
         </div>
 
-        <!-- Filtro por partido (SOLO ROSTER) -->
+        <!-- Filtro por partido (SOLO Roster) -->
         <div class="field" *ngIf="state.tab==='roster'">
-          <span class="label">Filtrar Roster por partidos</span>
+          <span class="label">Filtrar por Partido</span>
           <select [(ngModel)]="state.partidoId" (change)="fetchAndRender()">
             <option [ngValue]="''">— Selecciona partido —</option>
             <option *ngFor="let p of partidos" [ngValue]="p.id">
-              {{ p.id }} • {{ p.local }} vs {{ p.visit }} ({{ p.fecha }} {{ p.hora }})
+              {{ p.local }} vs {{ p.visit }} ({{ p.fecha }})
             </option>
           </select>
         </div>
@@ -79,7 +79,7 @@ type TabKey = 'jugadores' | 'equipos' | 'partidos' | 'roster';
       </div>
 
       <div class="report-preview">
-        <h3>Vista Previa</h3>
+        <h3>Vista Previa - {{ getTabTitle() }}</h3>
         <div class="table-wrap">
           <table>
             <thead>
@@ -95,8 +95,8 @@ type TabKey = 'jugadores' | 'equipos' | 'partidos' | 'roster';
 
         <div class="pager" *ngIf="state.total > 0">
           <div class="left">
-            <button (click)="prevPage()">« Anterior</button>
-            <button (click)="nextPage()">Siguiente »</button>
+            <button (click)="prevPage()" [disabled]="state.page <= 1">« Anterior</button>
+            <button (click)="nextPage()" [disabled]="state.page >= maxPage">Siguiente »</button>
             <span class="info">Página {{ state.page }} de {{ maxPage }}</span>
           </div>
           <div class="right">
@@ -122,33 +122,50 @@ export class ReporteriaComponent implements OnInit {
 
   state = {
     tab: 'jugadores' as TabKey,
-    desde: '', hasta: '',
-    // mapa por pestaña: cada tab recuerda su propio "todo"
-    todoByTab: {
-      jugadores: true,
-      equipos:   true,
-      partidos:  true,
-      roster:    true
-    } as Record<TabKey, boolean>,
-    page: 1, pageSize: 10, total: 0,
-    columns: [] as Column[], rows: [] as any[],
-    equipoId: '', partidoId: ''
+    page: 1, 
+    pageSize: 10, 
+    total: 0,
+    columns: [] as Column[], 
+    rows: [] as any[],
+    equipoId: '', 
+    partidoId: ''
   };
 
-  equipos: {id:string,nombre:string}[] = [];
+  // ✅ FECHAS INDEPENDIENTES POR PESTAÑA
+  datesByTab: Record<TabKey, {desde: string, hasta: string}> = {
+    jugadores: { desde: '', hasta: '' },
+    equipos:   { desde: '', hasta: '' },
+    partidos:  { desde: '', hasta: '' },
+    roster:    { desde: '', hasta: '' }
+  };
+
+  // ✅ TODO INDEPENDIENTE POR PESTAÑA
+  todoByTab: Record<TabKey, boolean> = {
+    jugadores: true,
+    equipos:   true,
+    partidos:  true,
+    roster:    true
+  };
+
+  equipos: {id: string, nombre: string}[] = [];
   partidos: any[] = [];
 
-  // acceso cómodo al “todo” de la pestaña actual
-  get todo(): boolean {
-    return this.state.todoByTab[this.state.tab];
-  }
-  set todo(v: boolean) {
-    this.state.todoByTab[this.state.tab] = v;
-    // si activás “todo”, no toco fechas globales (independencia del toggle)
-    this.fetchAndRender();
+  // Acceso a las fechas de la pestaña actual
+  get currentDates() {
+    return this.datesByTab[this.state.tab];
   }
 
-  get maxPage() { return Math.max(1, Math.ceil(this.state.total / this.state.pageSize)); }
+  // Acceso al "todo" de la pestaña actual
+  get todo(): boolean {
+    return this.todoByTab[this.state.tab];
+  }
+  set todo(v: boolean) {
+    this.todoByTab[this.state.tab] = v;
+  }
+
+  get maxPage() { 
+    return Math.max(1, Math.ceil(this.state.total / this.state.pageSize)); 
+  }
 
   async ngOnInit() {
     await this.loadLookups();
@@ -162,110 +179,138 @@ export class ReporteriaComponent implements OnInit {
     ]);
   }
 
+  // ✅ MANEJO INDEPENDIENTE DE FECHAS
+  onDateChange(field: 'desde' | 'hasta', event: any) {
+    this.currentDates[field] = event.target.value;
+    this.fetchAndRender();
+  }
+
+  getTabTitle(): string {
+    const titles = {
+      jugadores: 'Jugadores',
+      equipos: 'Equipos', 
+      partidos: 'Partidos',
+      roster: 'Roster por Partido'
+    };
+    return titles[this.state.tab];
+  }
+
   async changeTab(tab: TabKey) {
     if (this.state.tab === tab) return;
+    
     this.state.tab = tab;
     this.state.page = 1;
-
-    // Limpiar filtros específicos
-    if (tab !== 'jugadores') this.state.equipoId = '';
-    if (tab !== 'roster') this.state.partidoId = '';   // 👈 ahora SOLO roster usa partidoId
+    this.state.equipoId = '';
+    this.state.partidoId = '';
 
     await this.fetchAndRender();
   }
 
-  prevPage() { if (this.state.page > 1) { this.state.page--; this.fetchAndRender(); } }
-  nextPage() { if (this.state.page < this.maxPage) { this.state.page++; this.fetchAndRender(); } }
-  onPageSizeChange() { this.state.page = 1; this.fetchAndRender(); }
+  prevPage() { 
+    if (this.state.page > 1) { 
+      this.state.page--; 
+      this.fetchAndRender(); 
+    } 
+  }
+  
+  nextPage() { 
+    if (this.state.page < this.maxPage) { 
+      this.state.page++; 
+      this.fetchAndRender(); 
+    } 
+  }
+  
+  onPageSizeChange() { 
+    this.state.page = 1; 
+    this.fetchAndRender(); 
+  }
 
   async fetchAndRender() {
     let data: ApiPage;
-    const base = { page: this.state.page, pageSize: this.state.pageSize };
-    const disableDates = this.todo; // independiente por tab
+    const base = { 
+      page: this.state.page, 
+      pageSize: this.state.pageSize 
+    };
+    
+    const disableDates = this.todo;
 
-    if (this.state.tab === 'jugadores') {
-      data = await this.api.getJugadores({ ...base, equipo_id: this.state.equipoId || undefined });
-    } else if (this.state.tab === 'equipos') {
-      data = await this.api.getEquipos({
-        ...base,
-        desde: disableDates ? undefined : (this.state.desde || undefined),
-        hasta: disableDates ? undefined : (this.state.hasta || undefined)
-      });
-    } else if (this.state.tab === 'partidos') {
-      data = await this.api.getPartidos({
-        ...base,
-        desde: disableDates ? undefined : (this.state.desde || undefined),
-        hasta: disableDates ? undefined : (this.state.hasta || undefined)
-      });
-    } else {
-      // roster
-      data = await this.api.getRoster({ ...base, partido_id: this.state.partidoId || undefined });
+    switch (this.state.tab) {
+      case 'jugadores':
+        data = await this.api.getJugadores({ 
+          ...base, 
+          equipo_id: this.state.equipoId || undefined,
+          desde: disableDates ? undefined : (this.currentDates.desde || undefined),
+          hasta: disableDates ? undefined : (this.currentDates.hasta || undefined)
+        });
+        break;
+
+      case 'equipos':
+        data = await this.api.getEquipos({
+          ...base,
+          desde: disableDates ? undefined : (this.currentDates.desde || undefined),
+          hasta: disableDates ? undefined : (this.currentDates.hasta || undefined)
+        });
+        break;
+
+      case 'partidos':
+        data = await this.api.getPartidos({
+          ...base,
+          desde: disableDates ? undefined : (this.currentDates.desde || undefined),
+          hasta: disableDates ? undefined : (this.currentDates.hasta || undefined)
+        });
+        break;
+
+      case 'roster':
+        data = await this.api.getRoster({ 
+          ...base, 
+          partido_id: this.state.partidoId || undefined,
+          desde: disableDates ? undefined : (this.currentDates.desde || undefined),
+          hasta: disableDates ? undefined : (this.currentDates.hasta || undefined)
+        });
+        break;
     }
 
     this.state.columns = data.columns;
-    this.state.rows    = data.rows;
-    this.state.total   = data.total;
+    this.state.rows = data.rows;
+    this.state.total = data.total;
   }
 
   exportPDF() {
-    if (this.state.tab === 'jugadores') {
-      const disableDates = this.todo; // “Todo completo” de la pestaña
-      const url = this.api.getJugadoresPdfUrl({
-        equipo_id: this.state.equipoId || undefined,
-        desde: disableDates ? undefined : (this.state.desde || undefined),
-        hasta: disableDates ? undefined : (this.state.hasta || undefined),
-        all: this.todo, // si está marcado: PDF sin paginar
-        page: this.state.page,
-        pageSize: this.state.pageSize,
-      });
-      window.open(url, '_blank');
-      return;
-    }
-
-    if (this.state.tab === 'equipos') {
-      const disableDates = this.todo;
-      const url = this.api.getEquiposPdfUrl({
-        desde: disableDates ? undefined : (this.state.desde || undefined),
-        hasta: disableDates ? undefined : (this.state.hasta || undefined),
-        all: this.todo,
-        page: this.state.page,
-        pageSize: this.state.pageSize,
-      });
-      window.open(url, '_blank');
-      return;
-    }
-      if (this.state.tab === 'partidos') {
     const disableDates = this.todo;
-    const url = this.api.getPartidosPdfUrl({
-      desde: disableDates ? undefined : (this.state.desde || undefined),
-      hasta: disableDates ? undefined : (this.state.hasta || undefined),
+    const baseParams = {
       all: this.todo,
       page: this.state.page,
       pageSize: this.state.pageSize,
-    });
-    window.open(url, '_blank');
-    return;
-  }
-   if (this.state.tab === 'roster') {
-    const disableDates = this.todo;
-    const url = this.api.getRosterPdfUrl({
-      partido_id: this.state.partidoId || undefined,
-      desde: disableDates ? undefined : (this.state.desde || undefined),
-      hasta: disableDates ? undefined : (this.state.hasta || undefined),
-      all: this.todo,
-      page: this.state.page,
-      pageSize: this.state.pageSize,
-    });
-    window.open(url, '_blank');
-    return;
-  }
+      desde: disableDates ? undefined : (this.currentDates.desde || undefined),
+      hasta: disableDates ? undefined : (this.currentDates.hasta || undefined)
+    };
 
-    // Las otras pestañas quedan igual por ahora
-    const scope = this.todo
-      ? 'Todo completo'
-      : (this.state.desde && this.state.hasta)
-          ? `Del ${this.state.desde} al ${this.state.hasta}`
-          : `Página ${this.state.page} / ${this.state.total}`;
-    alert(`PDF: ${scope} (implementación pendiente para esta pestaña)`);
+    let url: string;
+
+    switch (this.state.tab) {
+      case 'jugadores':
+        url = this.api.getJugadoresPdfUrl({
+          ...baseParams,
+          equipo_id: this.state.equipoId || undefined
+        });
+        break;
+
+      case 'equipos':
+        url = this.api.getEquiposPdfUrl(baseParams);
+        break;
+
+      case 'partidos':
+        url = this.api.getPartidosPdfUrl(baseParams);
+        break;
+
+      case 'roster':
+        url = this.api.getRosterPdfUrl({
+          ...baseParams,
+          partido_id: this.state.partidoId || undefined
+        });
+        break;
+    }
+
+    window.open(url, '_blank');
   }
 }
