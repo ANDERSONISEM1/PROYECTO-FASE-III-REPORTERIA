@@ -60,6 +60,7 @@ dump.rdb
 notes.md
 todo.md
 
+
 # Docker
 node_modules
 npm-debug.log
@@ -71,3 +72,5 @@ docker-compose*.yml
 .env.*
 coverage
 .vscode
+=======
+
