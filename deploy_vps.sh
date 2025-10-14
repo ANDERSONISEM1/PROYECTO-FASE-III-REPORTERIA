@@ -1,3 +1,12 @@
+# Mover package.json y package-lock.json desde srv/ a web/ si existen
+if [ -f "srv/package.json" ]; then
+	echo "[INFO] Moviendo package.json de srv/ a web/"
+	mv srv/package.json web/
+fi
+if [ -f "srv/package-lock.json" ]; then
+	echo "[INFO] Moviendo package-lock.json de srv/ a web/"
+	mv srv/package-lock.json web/
+fi
 #!/bin/bash
 # Script de despliegue para VPS Ubuntu 24.04
 # Dominio: Uniondeprofesionales.com
