@@ -41,6 +41,13 @@ var jwtCfg = jwtSection.Get<JwtSettings>()!;
 builder.Services.AddSingleton(jwtCfg);
 builder.Services.AddSingleton<JwtTokenService>();
 builder.Services.AddScoped<AuthRepo>();
+if (string.IsNullOrWhiteSpace(jwtCfg.Issuer) ||
+    string.IsNullOrWhiteSpace(jwtCfg.Audience) ||
+    string.IsNullOrWhiteSpace(jwtCfg.Key))
+{
+    throw new InvalidOperationException(
+        $"Config Jwt incompleta. Issuer='{jwtCfg.Issuer}', Audience='{jwtCfg.Audience}', KeyLen={(jwtCfg.Key ?? "").Length}");
+}
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -55,7 +62,7 @@ builder.Services
             ValidIssuer = jwtCfg.Issuer,
             ValidAudience = jwtCfg.Audience,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtCfg.Key)),
-            NameClaimType = ClaimTypes.Name,
+            NameClaimType =ClaimTypes.Name,
             RoleClaimType = ClaimTypes.Role,
             ClockSkew = TimeSpan.Zero
         };
@@ -63,12 +70,28 @@ builder.Services
         // Soporte para SignalR con token en querystring
         options.Events = new JwtBearerEvents
         {
+            OnAuthenticationFailed = ctx =>
+            {
+                Console.WriteLine("JWT fail: " + ctx.Exception?.Message);
+                return Task.CompletedTask;
+            },
             OnMessageReceived = ctx =>
             {
                 var accessToken = ctx.Request.Query["access_token"];
                 var path = ctx.HttpContext.Request.Path;
                 if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hub"))
                     ctx.Token = accessToken;
+                var id = ctx.Principal?.Identity as ClaimsIdentity;
+                var rolesJson = id?.FindFirst("role")?.Value;
+                if (!string.IsNullOrWhiteSpace(rolesJson) && rolesJson.TrimStart().StartsWith("["))
+                {
+                    var roles = System.Text.Json.JsonSerializer.Deserialize<string[]>(rolesJson) ?? Array.Empty<string>();
+                    foreach (var r in roles)
+                    {
+                    
+                        id!.AddClaim(new Claim("role", r));
+                    }
+                }
                 return Task.CompletedTask;
             }
         };
@@ -89,7 +112,11 @@ builder.Services.AddCors(opt =>
 
 // Seeds al arrancar
 builder.Services.AddHostedService<RolesBootstrap>();
-builder.Services.AddHostedService<AdminUserBootstrap>();
+/*
+ * ya no aplica porque esto es el nuevo servicio de nodejs  
+ * */
+
+//builder.Services.AddHostedService<AdminUserBootstrap>();
 
 // Kestrel: escuchar en todas las IPs (no localhost)
 builder.WebHost.UseKestrel();

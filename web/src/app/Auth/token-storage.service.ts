@@ -16,6 +16,7 @@ export class TokenStorage {
   roles$ = this.rolesSubject.asObservable();
 
   setSession(s: Session) {
+    console.log('Storing session', s);
     localStorage.setItem(this.K, JSON.stringify(s));
     this.rolesSubject.next(s.roles || []);
   }
@@ -45,5 +46,5 @@ export class TokenStorage {
   isLogged(): boolean { return !!this.accessToken; }
 
   isAdmin(): boolean { return this.roles.includes('ADMINISTRADOR'); }
-  isUser():  boolean { return this.roles.includes('USUARIO'); }
+  isUser(): boolean { return this.roles.includes('USUARIO'); }
 }

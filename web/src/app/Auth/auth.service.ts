@@ -19,15 +19,16 @@ export interface LoginResponse {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private API = environment.apiBase; // <- usa environment
+  private APILOGIN = environment.apiBaseLogin;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   login(username: string, password: string): Promise<LoginResponse> {
     return firstValueFrom(
       this.http.post<LoginResponse>(
-        `${this.API}/api/auth/login`,
-        { username, password },
-        { withCredentials: true }
+        `${this.APILOGIN}/auth/login`,
+        { email: username, password },
+        { withCredentials: false }
       )
     );
   }
@@ -35,7 +36,7 @@ export class AuthService {
   getMe(): Promise<Pick<LoginResponse, 'username' | 'roles'>> {
     return firstValueFrom(
       this.http.get<Pick<LoginResponse, 'username' | 'roles'>>(
-        `${this.API}/api/auth/me`,
+        `${this.APILOGIN}/api/auth/me`,
         { withCredentials: true }
       )
     );
