@@ -16,7 +16,6 @@ export class TokenStorage {
   roles$ = this.rolesSubject.asObservable();
 
   setSession(s: Session) {
-    console.log('Storing session', s);
     localStorage.setItem(this.K, JSON.stringify(s));
     this.rolesSubject.next(s.roles || []);
   }

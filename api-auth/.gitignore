@@ -59,3 +59,15 @@ dump.rdb
 
 notes.md
 todo.md
+
+# Docker
+node_modules
+npm-debug.log
+Dockerfile*
+docker-compose*.yml
+.git
+.gitignore
+.env
+.env.*
+coverage
+.vscode
