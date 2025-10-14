@@ -42,7 +42,17 @@ sudo systemctl reload nginx
 # Solicitar certificado SSL
 sudo certbot --nginx -d Uniondeprofesionales.com -d www.Uniondeprofesionales.com --email jsalazart3@miumg.edu.gt --agree-tos --redirect --non-interactive
 
+
+
+# Verificar y crear package-lock.json en frontend si falta
+if [ ! -f "web/package-lock.json" ]; then
+	echo "[INFO] No existe web/package-lock.json. Creando archivo vacío..."
+	cd web
+	npm install --package-lock-only
+	cd ..
+fi
+
 # Levantar servicios con Docker Compose
-sudo docker-compose up -d
+sudo docker-compose up -d --build
 
 echo "Despliegue completado. Accede a https://Uniondeprofesionales.com"
