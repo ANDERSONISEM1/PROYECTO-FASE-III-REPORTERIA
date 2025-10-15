@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiBaseLogin: 'https://Uniondeprofesionales.com/api',
-  apiBase: 'https://Uniondeprofesionales.com/api'
+  apiBaseLogin: 'https://apilogin.mundoalonzo.com/',
+  apiBase: 'https://Uniondeprofesionales.com/'
 };
