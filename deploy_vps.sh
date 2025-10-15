@@ -40,7 +40,7 @@ sudo ufw enable
 # git clone https://github.com/tuusuario/tu-repo.git /var/www/reporteria
 # cd /var/www/reporteria
 
-# Copiar archivos de configuración Nginx
+echo "[INFO] Actualizando configuración de Nginx..."
 sudo cp web/nginx.conf /etc/nginx/sites-available/reporteria.conf
 sudo ln -sf /etc/nginx/sites-available/reporteria.conf /etc/nginx/sites-enabled/
 
