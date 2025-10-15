@@ -1,5 +1,5 @@
 export const environment = {
-  production: false,
-  apiBaseLogin: 'http://localhost:3000',
-  apiBase: 'http://localhost:5080'
+  production: true,
+  apiBaseLogin: 'https://Uniondeprofesionales.com/api',
+  apiBase: 'https://Uniondeprofesionales.com/api'
 };
