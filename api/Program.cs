@@ -1,3 +1,4 @@
+root@vmi2825921:/opt/PROYECTO-FASE-III-REPORTERIA/api# root@vmi2825921:/opt/PROYECTO-FASE-III-REPORTERIA/api# cat Program.cs
 using Api.Data;
 using Api.Hubs;
 using Api.Models;
@@ -41,6 +42,7 @@ var jwtCfg = jwtSection.Get<JwtSettings>()!;
 builder.Services.AddSingleton(jwtCfg);
 builder.Services.AddSingleton<JwtTokenService>();
 builder.Services.AddScoped<AuthRepo>();
+
 if (string.IsNullOrWhiteSpace(jwtCfg.Issuer) ||
     string.IsNullOrWhiteSpace(jwtCfg.Audience) ||
     string.IsNullOrWhiteSpace(jwtCfg.Key))
@@ -62,7 +64,7 @@ builder.Services
             ValidIssuer = jwtCfg.Issuer,
             ValidAudience = jwtCfg.Audience,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtCfg.Key)),
-            NameClaimType =ClaimTypes.Name,
+            NameClaimType = ClaimTypes.Name,
             RoleClaimType = ClaimTypes.Role,
             ClockSkew = TimeSpan.Zero
         };
@@ -81,16 +83,14 @@ builder.Services
                 var path = ctx.HttpContext.Request.Path;
                 if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hub"))
                     ctx.Token = accessToken;
+
                 var id = ctx.Principal?.Identity as ClaimsIdentity;
                 var rolesJson = id?.FindFirst("role")?.Value;
                 if (!string.IsNullOrWhiteSpace(rolesJson) && rolesJson.TrimStart().StartsWith("["))
                 {
                     var roles = System.Text.Json.JsonSerializer.Deserialize<string[]>(rolesJson) ?? Array.Empty<string>();
                     foreach (var r in roles)
-                    {
-                    
                         id!.AddClaim(new Claim("role", r));
-                    }
                 }
                 return Task.CompletedTask;
             }
@@ -99,26 +99,26 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
-// ===== CORS DEV (abre todo: útil ahora; endurecer en prod) =====
-const string CorsDev = "cors-dev";
+// ===== CORS PRODUCCIÓN =====
+const string CorsProd = "cors-prod";
+var allowedOrigins = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>() ?? new[] { "https://uniondeprofesionales.com" };
+
 builder.Services.AddCors(opt =>
 {
-    opt.AddPolicy(CorsDev, p =>
-        p.SetIsOriginAllowed(_ => true)
+    opt.AddPolicy(CorsProd, p =>
+        p.WithOrigins(allowedOrigins)
          .AllowAnyHeader()
          .AllowAnyMethod()
-         .AllowCredentials());
+         .AllowCredentials() // si no usas cookies, puedes quitarlo
+    );
 });
 
 // Seeds al arrancar
 builder.Services.AddHostedService<RolesBootstrap>();
-/*
- * ya no aplica porque esto es el nuevo servicio de nodejs  
- * */
 
-//builder.Services.AddHostedService<AdminUserBootstrap>();
-
-// Kestrel: escuchar en todas las IPs (no localhost)
+// Kestrel: escuchar en todas las IPs
 builder.WebHost.UseKestrel();
 builder.WebHost.ConfigureKestrel(o => { o.ListenAnyIP(5080); });
 
@@ -130,8 +130,8 @@ app.UseSwaggerUI();
 
 app.UseRouting();
 
-// CORS ANTES de Auth
-app.UseCors(CorsDev);
+// CORS antes de Auth
+app.UseCors(CorsProd);
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -147,8 +147,5 @@ app.MapGet("/healthz", () => Results.Ok(new
 app.MapHub<MarcadorHub>("/hub/marcador");
 
 app.MapControllers();
-
-// No fuerces localhost aquí (rompe en contenedor):
-// app.Urls.Add("http://localhost:5080");
 
 app.Run();
