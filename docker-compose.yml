@@ -85,7 +85,7 @@ services:
       ConnectionStrings__Default: "Server=sqlserver,1433;Database=MarcadorBasket;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;"
       Jwt__Issuer: "https://apilogin.mundoalonzo.com/"
       Jwt__Audience: "http://0.0.0:5080"
-      Jwt__Key: "MeNzHixIogyg2wyz_n59yo1d8KvBEUWLhU5N_POmaiOrSkxz9q38GeNPAz2KSY"
+      Jwt__Key: "MeNzHixIogyg2wyz_n59yo1d8KvBEUWLhU5N_POmaiOrSkxz9q38GeNPAz2KSY-62bghVVmUztQJmgMHpwxRzw"
       Jwt__AccessTokenMinutes: "480"
     ports:
       - "5080:5080"
