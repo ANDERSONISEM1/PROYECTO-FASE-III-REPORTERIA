@@ -15,11 +15,11 @@ El sistema continúa gestionando la información relacionada con equipos, jugado
 **Microservicio Api** 
 
 
-Desarrollado en C# y .net 8. Este servicio gestiona la lógica central del tablero de básquet, incluyendo la gestion de equipos, jugadores y partidos, utiliza SQL Server como base de datos.*
+Desarrollado en C# y .net 8. Este servicio gestiona la lógica central del tablero de básquetbol, incluyendo la gestion de equipos, jugadores y partidos, utiliza SQL Server como base de datos.*
 
 **Microservicio Api-auth**
 
-Desarrollado en Node.js, servicio encargado de la autenticacion y autirazion de los roles del usuario, este modulo implementa JWT para la seguridad, utiliza como base de datos MongoDb.*
+Desarrollado en Node.js, servicio encargado de la autenticacion y autorización de los roles del usuario, este modulo implementa JWT para la seguridad, utiliza como base de datos MongoDb.*
 
 **Microservicio Reporteria**
 
