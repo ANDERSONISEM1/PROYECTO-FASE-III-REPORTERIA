@@ -54,7 +54,7 @@ El sistema implementa autenticación segura mediante JSON Web Tokens (JWT) para 
    - Permite acceder a los módulos protegidos.  
    - Expira tras un tiempo de inactividad.  
 
-![Pantalla de inicio de sesión](docs/img/login.png)
+![Pantalla de inicio de sesión](../docs/img/login.png)
 
 
 
@@ -62,7 +62,7 @@ El sistema implementa autenticación segura mediante JSON Web Tokens (JWT) para 
 - Presione **Salir** (parte inferior izquierda).  
 - El sistema elimina el token JWT y redirige al login.
 
-![Pantalla de cierre de sesión](docs/img/logout.png)
+![Pantalla de cierre de sesión](../docs/img/logout.png)
 
 ---
 ## Navegación Principal
@@ -104,7 +104,7 @@ Pantalla principal con resumen del sistema:
 
 Incluye accesos directos para crear equipos, registrar jugadores y programar partidos.
 
-![Inicio](docs/img/tablero-inicio.png)
+![Inicio](../docs/img/tablero-inicio.png)
 
 
 ---
@@ -114,7 +114,7 @@ Muestra el marcador en tiempo real:
 - Cuarto actual y tiempo restante  
 - Faltas y tiempos muertos  
 
-![Visor](docs/img/tablero-visor.png)
+![Visor](../docs/img/tablero-visor.png)
 
 ---
 #### Panel de Control
@@ -124,23 +124,23 @@ Permite controlar todos los aspectos del partido.
 #### Controles disponibles:
 - **Equipos y jugadores:** selección y asignación de rosters.  
 
-![Equipos](docs/img/equipo-roster.png)
+![Equipos](../docs/img/equipo-roster.png)
 - **Puntaje:** suma o resta de 1, 2 o 3 puntos.  
 
-![Puntos](docs/img/puntos.png)
+![Puntos](../docs/img/puntos.png)
 - **Tiempo:** iniciar, pausar, reiniciar y finalizar el reloj.  
 - **Tiempos muertos:** agregar o restar tiempos cortos/largos. 
 
-![Tiempos](docs/img/tiempo.png)
+![Tiempos](../docs/img/tiempo.png)
 - **Cuartos:** avanzar, retroceder o iniciar prórroga. 
 
-![Cuartos](docs/img/cuartos.png)
+![Cuartos](../docs/img/cuartos.png)
 - **Faltas:** registrar faltas por jugador (5 faltas = fuera del juego).
 
-![Cuartos](docs/img/faltas.png)
+![Cuartos](../docs/img/faltas.png)
 - **Control general:** reiniciar o guardar partido.
 
-![Control-general](docs/img/control-general.png)
+![Control-general](../docs/img/control-general.png)
 
 ---
 ## Módulo de Gestion
@@ -162,42 +162,42 @@ Este módulo agrupa las siguientes secciones:
 - Visualización en tabla.
 - Filtro de búsqueda y visualización en tabla.  
 
-![Gestion_equipo](docs/img/gestion-equipo.png)
+![Gestion_equipo](../docs/img/gestion-equipo.png)
 
 #### Crear Equipo
 - Clic en **Nuevo Equipo**.
 - Llenar los campos solicitados.
 - Clic en **Guardar**.
 
-![Nuevo○_Equipo](docs/img/crear-equipo.png)
+![Nuevo○_Equipo](../docs/img/crear-equipo.png)
 
 #### Editar Equipo
 - Selecciona el equipo y clic en **Editar**.
 - Habilita los campos que el usuario desea cambiar.
 - Clic en **Guardar**.
 
-![Editar_Equipo](docs/img/editar-equipo.png)
+![Editar_Equipo](../docs/img/editar-equipo.png)
 ---
 ## Gestión de Jugadores
 - Registrar jugadores asociados a un equipo.  
 - Campos: nombres, dorsal, posición, estatura, edad, nacionalidad, equipo, estado activo.  
 - Permite edición o eliminación de registros.   
 
-![Gestion_jugador](docs/img/gestion-jugadores.png)
+![Gestion_jugador](../docs/img/gestion-jugadores.png)
 
 #### Crear Jugador
 - Clic en **Nuevo Jugador**.
 - Llenar los campos solicitados.
 - Clic en **Guardar**.
 
-![Crear jugador](docs/img/crear-jugador.png)
+![Crear jugador](../docs/img/crear-jugador.png)
 
 #### Editar Jugador
 - Selecciona a jugador y clic en **Editar**.
 - Habilita los campos que el usuario desea modificar.
 - Clic en **Guardar**.
 
-![Editar jugador](docs/img/editar-jugador.png)
+![Editar jugador](../docs/img/editar-jugador.png)
 ---
 ### Gestión de Partidos
 - Programar partidos entre dos equipos.  
@@ -206,28 +206,28 @@ Este módulo agrupa las siguientes secciones:
 - Permite editar y eliminar partidos existentes.
 - Consultar historial de partidos jugados.
 
-![Partidos](docs/img/gestion-partidos.png)
+![Partidos](../docs/img/gestion-partidos.png)
 
 #### Crear Partido
 - Clic en **Nuevo Partido**.
 - Llenar los campos solicitados.
 - Clic en **Guardar**.
 
-![crear partido](docs/img/crear-partido.png)
+![crear partido](../docs/img/crear-partido.png)
 
 #### Editar Partido
 - Selecciona un partido y clic en **Editar**.
 - Habilita los campos que el usuario desea modificar.
 - Clic en **Guardar**.
 
-![editar partido](docs/img/editar-partido.png)
+![editar partido](../docs/img/editar-partido.png)
 
 #### Asignar Roster de jugadores
  - Selecciona un partido y clic en **Roster**.
  - Habilita la pantalla para seleccionar jugadores.
  - Clic en **Guardar**.
 
- ![editar partido](docs/img/roster-partido.png)
+ ![editar partido](../docs/img/roster-partido.png)
 
 ---
 ### Historial de partidos
@@ -235,7 +235,7 @@ Este módulo agrupa las siguientes secciones:
 - Ver marcadores finales.
 - Filtrar por equipo.
 
-![Partidos](docs/img/historial-partidos.png)
+![Partidos](../docs/img/historial-partidos.png)
 
 ---
 ## Módulo de Reportería
@@ -262,19 +262,19 @@ Vistas previas
 
 #### Jugadores
  
-![Reportería Jugadores](docs/img/reporteria-jugadores.png)
+![Reportería Jugadores](../docs/img/reporteria-jugadores.png)
 
 #### Equipos
 
- ![Reportería Equipos](docs/img/reporteria-equipos.png)
+ ![Reportería Equipos](../docs/img/reporteria-equipos.png)
 
 #### Partidos
 
- ![Reportería Partidos](docs/img/reporteria-partidos.png)
+ ![Reportería Partidos](../docs/img/reporteria-partidos.png)
 
 #### Roster
 
-![Reportería Roster](docs/img/reporteria-roster.png)
+![Reportería Roster](../docs/img/reporteria-roster.png)
 
 ---
 
@@ -309,7 +309,7 @@ Esto abrirá la vista principal del módulo, dividida en tres secciones principa
    - **Rol** (por defecto `USUARIO`, aunque puede asignarse `ADMINISTRADOR`)
 3. Presiona el botón **“Crear Usuario”** para guardar el nuevo registro.
 
-![Crear Usuario](docs/img/crear-editar-user.png)
+![Crear Usuario](../docs/img/crear-editar-user.png)
 > Al crear un usuario, este queda **activo** automáticamente y podrá iniciar sesión con las credenciales asignadas.
 
 ---
@@ -322,11 +322,11 @@ Esto abrirá la vista principal del módulo, dividida en tres secciones principa
 
 -  Buscar el usuario a editar.
 
-![Buscar Usuario](docs/img/list-user.png)
+![Buscar Usuario](../docs/img/list-user.png)
 
 - Vista de los campos a editar
 
-![Buscar Usuario](docs/img/edit-user.png)
+![Buscar Usuario](../docs/img/edit-user.png)
 ---
 
 ### Restablecer Contraseña
@@ -338,7 +338,7 @@ La sección Restablecer contraseña permite cambiar la clave de acceso de un usu
 3. Introduce la nueva contraseña en el campo correspondiente.
 4. Presiona el botón **Cambiar** para aplicar la nueva clave.
 
-![Buscar Usuario](docs/img/cambio-contrasena.png)
+![Buscar Usuario](../docs/img/cambio-contrasena.png)
 
 ---
 
@@ -352,7 +352,7 @@ El cuadro Resumen ubicado en la parte superior derecha muestra información gene
 | **Activos** | Usuarios que actualmente tienen acceso habilitado |
 | **Roles** | Cantidad de roles definidos
 
-![Buscar Usuario](docs/img/resumen.png)
+![Buscar Usuario](../docs/img/resumen.png)
 
 Este resumen se actualiza automáticamente con cada operación realizada.
 
