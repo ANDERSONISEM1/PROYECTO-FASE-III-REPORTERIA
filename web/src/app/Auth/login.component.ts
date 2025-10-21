@@ -35,9 +35,34 @@ export class LoginComponent {
       else if (this.store.isUser()) this.router.navigate(['/inicio']);
       else this.router.navigate(['/visor']); // fallback
     } catch (e: any) {
-      this.error = e?.error || e?.message || 'No se pudo iniciar sesión';
+      this.error = this.readableHttpError(e);
     } finally {
       this.loading = false;
     }
+  }
+  private readableHttpError(err: any): string {
+    // Backend que responde { error: "mensaje" }
+    if (err?.error?.error && typeof err.error.error === 'string') {
+      return err.error.error;
+    }
+    // Backend que responde string plano
+    if (typeof err?.error === 'string') {
+      return err.error;
+    }
+    // Errores de validación (ej. Zod) en details
+    if (Array.isArray(err?.error?.details) && err.error.details.length) {
+      // toma el primer mensaje legible
+      const first = err.error.details[0];
+      return first?.message || 'Datos inválidos';
+    }
+    // Error de red / CORS / servidor caído
+    if (err?.status === 0 || err?.name === 'HttpErrorResponse' && !err?.status) {
+      return 'No se pudo conectar al servidor. Verifica tu conexión.';
+    }
+    // Mensaje HTTP genérico
+    if (err?.message && typeof err.message === 'string') {
+      return err.message;
+    }
+    return 'Ocurrió un error inesperado al iniciar sesión.';
   }
 }
