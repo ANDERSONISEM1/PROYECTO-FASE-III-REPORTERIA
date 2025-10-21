@@ -15,7 +15,13 @@ function ensureJwtSecret() {
  * @param {{nombre: string, email: string, password: string, direccion?: string}} data
  * @returns {Promise<{ id: string, nombre: string, email: string, direccion: (string|null) }>}
  */
-async function register({ nombre, email, password, direccion = null }) {
+async function register({
+  nombre,
+  email,
+  password,
+  direccion = null,
+  role = null,
+}) {
   const normalizedEmail = email.toLowerCase().trim();
 
   const existing = await User.findOne({ email: normalizedEmail }).lean();
@@ -63,8 +69,10 @@ async function login({ email, password }) {
   ensureJwtSecret();
   const normalizedEmail = email.toLowerCase().trim();
 
-  const user = await User.findOne({ email: normalizedEmail });
-  if (!user) {
+  const user = await User.findOne({ email: normalizedEmail }).select(
+    "+passwordHash"
+  );
+  if (!user || !user.passwordHash) {
     const err = new Error("Credenciales inválidas");
     err.code = "CREDENCIALES_INVALIDAS";
     throw err;

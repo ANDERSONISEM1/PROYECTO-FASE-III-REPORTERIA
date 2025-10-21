@@ -23,6 +23,16 @@ export class AuthService {
 
   constructor(private http: HttpClient) { }
 
+
+  // 1) Obtener la URL de autorización (incluye state firmado)
+  getGithubUrl(): Promise<{ authorizeUrl: string; state: string }> {
+    return firstValueFrom(
+      this.http.get<{ authorizeUrl: string; state: string }>(
+        `${this.APILOGIN}/auth/github/url`
+      )
+    );
+  }
+
   login(username: string, password: string): Promise<LoginResponse> {
     return firstValueFrom(
       this.http.post<LoginResponse>(
@@ -32,7 +42,19 @@ export class AuthService {
       )
     );
   }
-
+  // 2) Iniciar GitHub OAuth
+  async loginGithub() {
+    const { authorizeUrl } = await this.getGithubUrl();
+    window.location.href = authorizeUrl;
+  }
+  exchangeGithubCode(code: string, state: string): Promise<LoginResponse> {
+    return firstValueFrom(
+      this.http.post<LoginResponse>(
+        `${this.APILOGIN}/auth/github/exchange`,
+        { code, state }
+      )
+    );
+  }
   getMe(): Promise<Pick<LoginResponse, 'username' | 'roles'>> {
     return firstValueFrom(
       this.http.get<Pick<LoginResponse, 'username' | 'roles'>>(

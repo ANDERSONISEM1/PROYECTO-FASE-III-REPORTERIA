@@ -19,15 +19,30 @@ async function register(req, res) {
   try {
     const data = registerSchema.parse(req.body);
     const result = await authService.register(data);
-    // El servicio devuelve { id, nombre, email, direccion }
     return res.status(201).json(result);
   } catch (err) {
-    if (err?.issues)
+    // 🔎 LOG al contenedor (aparece en: docker logs -f api-auth)
+    console.error("❌ register() failed:", {
+      message: err?.message,
+      code: err?.code,
+      name: err?.name,
+      stack: err?.stack,
+      body: req.body,
+    });
+
+    if (err?.issues) {
       return res
         .status(400)
         .json({ error: "Datos inválidos", details: err.issues });
-    if (err?.code === "EMAIL_DUPLICADO")
+    }
+    if (err?.code === "EMAIL_DUPLICADO") {
       return res.status(409).json({ error: "Email ya registrado" });
+    }
+    // Mongoose duplicado crudo
+    if (err?.code === 11000 && err?.keyPattern?.email) {
+      return res.status(409).json({ error: "Email ya registrado" });
+    }
+
     return res.status(500).json({ error: "Error registrando usuario" });
   }
 }

@@ -12,11 +12,14 @@ import { HistorialComponent } from './pages/historial/historial.component';
 import { InicioComponent } from './pages/inicio/inicio.component';
 import { AjustesComponent } from './pages/ajustes/ajustes.component';
 import { ReporteriaComponent } from './pages/Reporteria/reporteria.component';
+import { OauthGithubComponent } from './Auth/oauth-github.component';
 
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
+  { path: 'oauth/github', component: OauthGithubComponent },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
 
   // Layout (ambos roles ven Inicio en layout)
   {
@@ -24,13 +27,13 @@ export const routes: Routes = [
     canActivate: [authGuard],
     component: AdminLayoutComponent,
     children: [
-      { path: 'inicio', canMatch: [roleGuard(['ADMINISTRADOR','USUARIO'])], component: InicioComponent },
+      { path: 'inicio', canMatch: [roleGuard(['ADMINISTRADOR', 'USUARIO'])], component: InicioComponent },
     ]
   },
 
   // Pantallas sueltas
-  { path: 'control', canActivate: [authGuard], canMatch: [roleGuard(['ADMINISTRADOR','USUARIO'])], component: ControlComponent },
-  { path: 'visor',   canActivate: [authGuard], canMatch: [roleGuard(['ADMINISTRADOR','USUARIO'])], component: VisorComponent },
+  { path: 'control', canActivate: [authGuard], canMatch: [roleGuard(['ADMINISTRADOR', 'USUARIO'])], component: ControlComponent },
+  { path: 'visor', canActivate: [authGuard], canMatch: [roleGuard(['ADMINISTRADOR', 'USUARIO'])], component: VisorComponent },
 
   // Grupo admin bajo layout (gestión)
   {
@@ -63,7 +66,7 @@ export const routes: Routes = [
   {
     path: 'admin/partidos',
     canActivate: [authGuard],
-    canMatch: [roleGuard(['ADMINISTRADOR','USUARIO'])], // ejemplo habilitado a ambos
+    canMatch: [roleGuard(['ADMINISTRADOR', 'USUARIO'])], // ejemplo habilitado a ambos
     component: AdminLayoutComponent,
     children: [
       { path: '', component: PartidosComponent }
@@ -78,15 +81,15 @@ export const routes: Routes = [
       { path: '', component: HistorialComponent }
     ]
   },
-   {
-  path: 'admin/reporteria',
-  canActivate: [authGuard],
-  canMatch: [roleGuard(['ADMINISTRADOR'])],
-  component: AdminLayoutComponent,
-  children: [
-    { path: '', component: ReporteriaComponent }
-  ]
-},
+  {
+    path: 'admin/reporteria',
+    canActivate: [authGuard],
+    canMatch: [roleGuard(['ADMINISTRADOR'])],
+    component: AdminLayoutComponent,
+    children: [
+      { path: '', component: ReporteriaComponent }
+    ]
+  },
 
   {
     path: 'admin/ajustes',
@@ -97,7 +100,7 @@ export const routes: Routes = [
       { path: '', component: AjustesComponent }
     ]
   },
- 
+
 
 
   { path: '**', redirectTo: 'login' }

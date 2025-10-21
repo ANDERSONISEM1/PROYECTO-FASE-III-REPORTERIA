@@ -12,9 +12,18 @@ const userSchema = new Schema(
       lowercase: true,
       trim: true,
     },
-    passwordHash: { type: String, required: true },
+    passwordHash: {
+      type: String,
+      // Requerido si NO tiene proveedor OAuth
+      required: function () {
+        return !this.githubId;
+      },
+      select: false, // opcional: no devolverlo por defecto
+    },
     direccion: { type: String, default: null },
     role: { type: String, enum: ROLES, default: "USUARIO", index: true },
+    githubId: { type: String, index: true, sparse: true },
+    avatarUrl: String,
   },
   { timestamps: true }
 );
