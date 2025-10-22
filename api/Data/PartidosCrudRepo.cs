@@ -8,6 +8,8 @@ namespace Api.Data
     public class PartidosCrudRepo
     {
         private readonly Db _db;
+        // Repositorio para operaciones CRUD de Partidos.
+        // Incluye operaciones sobre el roster y borrado en cascada de anotaciones, faltas, cuartos, etc.
         public PartidosCrudRepo(Db db) => _db = db;
 
         public async Task<IEnumerable<PartidoDto>> GetAllAsync()
@@ -87,7 +89,9 @@ namespace Api.Data
         }
 
         /// <summary>
-        /// 0 si no existe; >0 filas borradas (incluye hijos).
+        /// Elimina un partido y sus entidades relacionadas (anotaciones, faltas, tiempos muertos,
+        /// eventos de cronómetro, roster, cuartos). Operación en transacción.
+        /// Retorna 0 si el partido no existe; >0 número de filas afectadas.
         /// </summary>
         public async Task<int> DeleteAsync(int id)
         {
@@ -121,7 +125,12 @@ namespace Api.Data
         }
 
         /// <summary>
-        /// Reemplaza el roster. -10 si >5 titulares en algún equipo; 0 si partido no existe; >0 filas insertadas.
+        /// Reemplaza el roster (sustituye todas las filas existentes para el partido).
+        /// Validaciones:
+        ///  - Si el partido no existe retorna 0.
+        ///  - Si algún equipo tiene más de 5 titulares, revierte la transacción y retorna -10 (conflicto).
+        ///  - Devuelve >0 la cantidad de filas insertadas en caso de éxito.
+        /// Nota: se ignoran entradas cuyo equipo no pertenezca al partido.
         /// </summary>
         public async Task<int> SaveRosterAsync(SaveRosterRequest body)
         {

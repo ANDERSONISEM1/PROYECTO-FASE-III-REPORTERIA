@@ -7,19 +7,25 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Api.Controllers;
 
+// Controlador para operaciones sobre partidos en tiempo real y gestión de estado
 [ApiController]
 [Route("api/partidos")]
 public class PartidosController : ControllerBase
 {
+    // Repositorio para acceder a datos de partidos
     private readonly PartidosRepo _repo;
+    // Hub para comunicación en tiempo real (SignalR)
     private readonly IHubContext<MarcadorHub> _hub;
 
+    // Inyección de dependencias
     public PartidosController(PartidosRepo repo, IHubContext<MarcadorHub> hub)
     {
         _repo = repo;
         _hub = hub;
     }
 
+    // POST: api/partidos/start
+    // Inicia un partido nuevo, valida equipos y parámetros
     [HttpPost("start")]
     public async Task<ActionResult<StartPartidoResponse>> Start([FromBody] StartPartidoRequest body)
     {
@@ -68,6 +74,8 @@ public class PartidosController : ControllerBase
         return Ok(resp);
     }
 
+    // GET: api/partidos/abierto
+    // Devuelve el partido abierto entre dos equipos, si existe
     [HttpGet("abierto")]
     public async Task<ActionResult<object>> GetAbierto([FromQuery] int localId, [FromQuery] int visitId)
     {
@@ -80,6 +88,8 @@ public class PartidosController : ControllerBase
         return Ok(new { partidoId = id.Value });
     }
 
+    // POST: api/partidos/{partidoId}/finalizar
+    // Finaliza un partido y notifica a los clientes conectados
     [HttpPost("{partidoId:int}/finalizar")]
     public async Task<ActionResult> Finalizar(int partidoId)
     {
@@ -105,6 +115,8 @@ public class PartidosController : ControllerBase
         return NotFound(new { ok = false });
     }
 
+    // DELETE: api/partidos/{partidoId}/reset
+    // Resetea el estado de un partido y notifica a los clientes
     [HttpDelete("{partidoId:int}/reset")]
     public async Task<ActionResult> Reset(int partidoId)
     {
@@ -115,6 +127,8 @@ public class PartidosController : ControllerBase
         return Ok(new { ok = true, partidoId });
     }
 
+    // DELETE: api/partidos/{partidoId}
+    // Elimina un partido y notifica a los clientes
     [HttpDelete("{partidoId:int}")]
     public async Task<ActionResult> Delete(int partidoId)
     {

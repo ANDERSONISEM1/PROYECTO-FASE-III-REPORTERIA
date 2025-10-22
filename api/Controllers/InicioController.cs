@@ -9,6 +9,7 @@ namespace Api.Controllers
      [Authorize(Roles = "ADMINISTRADOR, USUARIO")]
     public class InicioController : ControllerBase
     {
+        // Controlador que expone datos para el dashboard/portada
         private readonly InicioRepo _repo;
         private readonly EquiposRepo _equipos;
         public InicioController(InicioRepo repo, EquiposRepo equipos)
@@ -17,10 +18,12 @@ namespace Api.Controllers
             _equipos = equipos;
         }
 
+        // KPIs principales para el panel de inicio
         [HttpGet("kpis")]
         public async Task<ActionResult<InicioKpisDto>> GetKpis()
             => Ok(await _repo.GetKpisAsync());
 
+        // Próximo partido (si hay), devuelve 204 si no existe
         [HttpGet("proximo")]
         public async Task<ActionResult<ProximoPartidoDto>> GetProximo()
         {
@@ -28,7 +31,7 @@ namespace Api.Controllers
             return row is null ? NoContent() : Ok(row);
         }
 
-        // Para nombres de equipos en el tablero
+        // Lista de equipos para mostrar nombres en UI
         [HttpGet("equipos")]
         public async Task<ActionResult> GetEquipos()
             => Ok(await _equipos.GetAllAsync());

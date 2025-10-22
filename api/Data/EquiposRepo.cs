@@ -10,6 +10,8 @@ namespace Api.Data
     public class EquiposRepo
     {
         private readonly Db _db;
+        // Repositorio para operaciones CRUD sobre la tabla Equipo.
+        // Contiene validaciones ligeras y métodos auxiliares (logo en Base64, info para borrado).
         public EquiposRepo(Db db) => _db = db;
 
         public async Task<IEnumerable<EquipoDto>> GetAllAsync()
@@ -39,7 +41,7 @@ namespace Api.Data
             return await conn.QueryFirstOrDefaultAsync<EquipoDto>(sql, new { id });
         }
 
-        // ====== NUEVO: validaciones de nombre único ======
+        // ====== Validaciones de unicidad de nombre ======
         public async Task<bool> ExistsByNameAsync(string nombre)
         {
             using var conn = _db.Open();
@@ -61,7 +63,7 @@ namespace Api.Data
             var n = await conn.ExecuteScalarAsync<int>(sql, new { id, nombre });
             return n > 0;
         }
-        // ===================================================
+    // ===================================================
 
         public async Task<int> CreateAsync(CreateEquipoRequest body)
         {
@@ -111,7 +113,7 @@ namespace Api.Data
             });
         }
 
-        // ===== Info para el modal (igual que antes) =====
+        // ===== Información usada por el modal de borrado =====
         public async Task<EquipoDeleteInfoDto> GetDeleteInfoAsync(int equipoId, int topN = 50)
         {
             using var conn = _db.Open();
@@ -149,8 +151,11 @@ namespace Api.Data
             return new EquipoDeleteInfoDto(canDelete, totalJug, jugadores, resumen);
         }
 
-        // Borrado forzado si NO hay partidos
-        // -2: participa en partidos; 0: no existe; >0: filas afectadas
+        // Borrado forzado si NO hay partidos.
+        // Retorna:
+        //  -2 : el equipo participa en partidos (no se permite borrar)
+        //   0 : el equipo no existe
+        //  >0 : número de filas eliminadas (borrado realizado)
         public async Task<int> DeleteAsync(int id)
         {
             using var conn = _db.Open();

@@ -12,6 +12,7 @@ namespace Api.Controllers;
 
 [ApiController]
 [Route("api/auth")]
+// Controlador para autenticación y gestión de usuarios
 public sealed class AuthController : ControllerBase
 {
     private readonly AuthRepo _repo;
@@ -20,6 +21,7 @@ public sealed class AuthController : ControllerBase
 
     private const int RefreshDays = 30;
 
+    // Inyección de dependencias: repositorio de usuarios, servicio JWT y acceso a base de datos
     public AuthController(AuthRepo repo, JwtTokenService jwt, Db db)
     {
         _repo = repo;
@@ -27,10 +29,13 @@ public sealed class AuthController : ControllerBase
         _db = db;
     }
 
+    // POST: api/auth/login
+    // Endpoint para login de usuario. Valida credenciales y genera tokens.
     [HttpPost("login")]
     [AllowAnonymous]
     public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest body)
     {
+        // Validación de credenciales y generación de tokens de acceso y refresco
         if (string.IsNullOrWhiteSpace(body.Username) || string.IsNullOrWhiteSpace(body.Password))
             return BadRequest("Credenciales inválidas.");
 
@@ -45,7 +50,7 @@ public sealed class AuthController : ControllerBase
 
         await _repo.TouchLastLoginAsync(user.Id);
 
-        // ===== Refresh token =====
+        // Genera y almacena el refresh token en la base de datos
         var refreshToken = GenerateSecureToken(64);
         var refreshExpires = DateTime.UtcNow.AddDays(RefreshDays);
         var tokenHash = Sha256(refreshToken);
@@ -71,7 +76,7 @@ VALUES (@uid, @th, @exp, @ip, @ua);";
             tx.Commit();
         }
 
-        // Cookie para navegador
+        // Envía el refresh token como cookie segura al navegador
         AppendRefreshCookie(refreshToken, refreshExpires);
 
         return Ok(new LoginResponse
@@ -83,6 +88,8 @@ VALUES (@uid, @th, @exp, @ip, @ua);";
         });
     }
 
+    // GET: api/auth/me
+    // Devuelve los datos del usuario autenticado
     [Authorize]
     [HttpGet("me")]
     public async Task<ActionResult<LoginResponse>> Me()
@@ -108,7 +115,7 @@ VALUES (@uid, @th, @exp, @ip, @ua);";
         });
     }
 
-    // ========= Helpers =========
+    // ========= Métodos auxiliares =========
     private static string GenerateSecureToken(int bytesLen)
     {
         var bytes = RandomNumberGenerator.GetBytes(bytesLen);

@@ -7,6 +7,7 @@ using System.Linq;
 
 namespace Api.Controllers
 {
+    // Controlador para la administración de partidos (solo para rol ADMINISTRADOR)
     [ApiController]
     [Route("api/admin/partidos")]
     [Authorize(Roles = "ADMINISTRADOR")]
@@ -15,10 +16,14 @@ namespace Api.Controllers
         private readonly PartidosCrudRepo _repo;
         public AdminPartidosController(PartidosCrudRepo repo) => _repo = repo;
 
+        // GET: api/admin/partidos
+        // Devuelve todos los partidos registrados
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PartidoDto>>> GetAll()
             => Ok(await _repo.GetAllAsync());
 
+        // GET: api/admin/partidos/{id}
+        // Devuelve los datos de un partido por su ID
         [HttpGet("{id:int}")]
         public async Task<ActionResult<PartidoDto>> GetById(int id)
         {
@@ -26,11 +31,14 @@ namespace Api.Controllers
             return row is null ? NotFound() : Ok(row);
         }
 
-        // Leer roster persistido
+        // GET: api/admin/partidos/{id}/roster
+        // Devuelve el roster (alineación) de un partido
         [HttpGet("{id:int}/roster")]
         public async Task<ActionResult<IEnumerable<RosterEntryDto>>> GetRoster(int id)
             => Ok(await _repo.GetRosterAsync(id));
 
+        // POST: api/admin/partidos
+        // Crea un nuevo partido. Valida que los equipos sean diferentes y los datos requeridos.
         [HttpPost]
         public async Task<ActionResult<PartidoDto>> Create([FromBody] CreatePartidoRequest body)
         {
@@ -40,6 +48,7 @@ namespace Api.Controllers
             if (body.EquipoLocalId == body.EquipoVisitanteId)
                 return Conflict(new { error = "No se puede elegir los mismos equipos; elige uno diferente." });
 
+            // Llama al repositorio para crear el partido
             var id = await _repo.CreateAsync(new CreatePartidoRequest
             {
                 EquipoLocalId = body.EquipoLocalId,
@@ -56,6 +65,8 @@ namespace Api.Controllers
             return CreatedAtAction(nameof(GetById), new { id }, dto);
         }
 
+        // PUT: api/admin/partidos/{id}
+        // Actualiza los datos de un partido existente
         [HttpPut("{id:int}")]
         public async Task<ActionResult> Update(int id, [FromBody] UpdatePartidoRequest body)
         {
@@ -69,6 +80,8 @@ namespace Api.Controllers
             return n == 0 ? NotFound() : NoContent();
         }
 
+        // DELETE: api/admin/partidos/{id}
+        // Elimina un partido por su ID
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
         {
@@ -76,13 +89,15 @@ namespace Api.Controllers
             return n == 0 ? NotFound() : NoContent();
         }
 
+        // PUT: api/admin/partidos/{id}/roster
+        // Guarda el roster (alineación) de un partido. Valida máximo 5 titulares por equipo.
         [HttpPut("{id:int}/roster")]
         public async Task<ActionResult> SaveRoster(int id, [FromBody] SaveRosterRequest body)
         {
             if (body is null || body.PartidoId != id)
                 return BadRequest(new { error = "PartidoId inválido." });
 
-            // Máx. 5 titulares por equipo (defensivo)
+            // Validación defensiva: máximo 5 titulares por equipo
             var titularesPorEquipo = body.Items
                 .Where(i => i.EsTitular)
                 .GroupBy(i => i.EquipoId)

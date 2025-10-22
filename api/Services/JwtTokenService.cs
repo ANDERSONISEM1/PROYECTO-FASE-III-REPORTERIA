@@ -6,6 +6,8 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Api.Services;
 
+// Servicio responsable de crear tokens JWT con las settings desde `JwtSettings`.
+// Usa HMAC-SHA256 con la clave simétrica configurada en appsettings.
 public sealed class JwtTokenService
 {
     private readonly JwtSettings _cfg;
@@ -19,6 +21,7 @@ public sealed class JwtTokenService
             SecurityAlgorithms.HmacSha256);
     }
 
+    // Crea un token de acceso con claims básicos (sub, nombre, roles) y expiración según configuración
     public (string token, DateTime expiresUtc) CreateAccessToken(long userId, string username, IEnumerable<string> roles)
     {
         var now = DateTime.UtcNow;
