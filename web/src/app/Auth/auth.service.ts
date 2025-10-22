@@ -1,13 +1,9 @@
+// web/src/app/Auth/auth.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-
-
-
-
-
-
 
 export interface LoginResponse {
   accessToken: string;
@@ -18,10 +14,10 @@ export interface LoginResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private API = environment.apiBase; // <- usa environment
-  private APILOGIN = environment.apiBaseLogin;
+  private API = environment.apiBase;            // p.ej. https://union.../api/
+  private APILOGIN = environment.apiBaseLogin;  // p.ej. https://union.../auth/
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
 
   // 1) Obtener la URL de autorización (incluye state firmado)
@@ -36,9 +32,11 @@ export class AuthService {
   login(username: string, password: string): Promise<LoginResponse> {
     return firstValueFrom(
       this.http.post<LoginResponse>(
-        `${this.APILOGIN}/auth/login`,
+        `${this.APILOGIN}login`,                 // -> /auth/login
         { email: username, password },
         { withCredentials: false }
+      ).pipe(
+        tap(res => localStorage.setItem('token', res.accessToken)) // guarda token
       )
     );
   }
@@ -58,9 +56,10 @@ export class AuthService {
   getMe(): Promise<Pick<LoginResponse, 'username' | 'roles'>> {
     return firstValueFrom(
       this.http.get<Pick<LoginResponse, 'username' | 'roles'>>(
-        `${this.APILOGIN}/api/auth/me`,
+        `${this.APILOGIN}api/auth/me`,          // -> /auth/api/auth/me  (ver Nginx abajo)
         { withCredentials: true }
       )
     );
   }
 }
+

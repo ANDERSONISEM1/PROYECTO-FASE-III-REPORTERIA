@@ -55,6 +55,14 @@ builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        // Acepta múltiples 'aud' para no romper con los tokens emitidos
+        var validAudiences = new[]
+        {
+            jwtCfg.Audience,                     // lo configurado en appsettings.json
+            "http://localhost:5080/",            // el 'aud' que trae tu token actual
+            "https://uniondeprofesionales.com/"  // por si emites así en adelante
+        };
+
         options.TokenValidationParameters = new()
         {
             ValidateIssuer = true,
@@ -62,14 +70,14 @@ builder.Services
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             ValidIssuer = jwtCfg.Issuer,
-            ValidAudience = jwtCfg.Audience,
+            ValidAudiences = validAudiences,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtCfg.Key)),
             NameClaimType = ClaimTypes.Name,
             RoleClaimType = ClaimTypes.Role,
             ClockSkew = TimeSpan.Zero
         };
 
-        // Soporte para SignalR con token en querystring
+        // Soporte para SignalR con token en querystring + normalización de roles
         options.Events = new JwtBearerEvents
         {
             OnAuthenticationFailed = ctx =>
@@ -103,7 +111,11 @@ builder.Services.AddAuthorization();
 const string CorsProd = "cors-prod";
 var allowedOrigins = builder.Configuration
     .GetSection("Cors:AllowedOrigins")
+<<<<<<< HEAD
     .Get<string[]>() ?? new[] { "https://uniondeprofesionales.com" };
+=======
+    .Get<string[]>() ?? new[] { "https://uniondeprofesionales.com", "https://www.uniondeprofesionales.com" };
+>>>>>>> 398cb06 (Actualizaciones realizadas directamente desde la VPS (auth, environment, docker-compose, etc.))
 
 builder.Services.AddCors(opt =>
 {
@@ -111,7 +123,11 @@ builder.Services.AddCors(opt =>
         p.WithOrigins(allowedOrigins)
          .AllowAnyHeader()
          .AllowAnyMethod()
+<<<<<<< HEAD
          .AllowCredentials() // si no usas cookies, puedes quitarlo
+=======
+         .AllowCredentials()
+>>>>>>> 398cb06 (Actualizaciones realizadas directamente desde la VPS (auth, environment, docker-compose, etc.))
     );
 });
 
@@ -148,4 +164,9 @@ app.MapHub<MarcadorHub>("/hub/marcador");
 
 app.MapControllers();
 
+<<<<<<< HEAD
 app.Run();
+=======
+app.Run();
+
+>>>>>>> 398cb06 (Actualizaciones realizadas directamente desde la VPS (auth, environment, docker-compose, etc.))
