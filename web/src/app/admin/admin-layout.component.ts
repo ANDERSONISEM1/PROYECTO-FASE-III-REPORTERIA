@@ -67,13 +67,7 @@ export class AdminLayoutComponent implements OnDestroy {
     // construye con estado actual (por si ya había sesión)
     this.groups = this.nav.getGroupsFor(this.store.roles as any);
 
-    // 2) Auto-refresco (30s) para capturar cambios de roles en servidor
-    // this.syncSub = interval(30000)
-    //   .pipe(switchMap(() => this.auth.getMe()))
-    //   .subscribe({
-    //     next: me => this.store.updateRoles(me.roles || []),
-    //     error: () => { /* silenciar si falla */ }
-    //   });
+
   }
 
   logout() {
