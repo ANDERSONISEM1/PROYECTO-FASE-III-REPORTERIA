@@ -1,0 +1,17 @@
+/home/anderson/marcador-app/marcadorcrud-api-java/src/main/java/com/marcador/crud/MarcadorcrudApiJavaApplication.java
+/home/anderson/marcador-app/marcadorcrud-api-java/src/main/java/com/marcador/crud/controller/EquiposController.java
+/home/anderson/marcador-app/marcadorcrud-api-java/src/main/java/com/marcador/crud/controller/JugadoresController.java
+/home/anderson/marcador-app/marcadorcrud-api-java/src/main/java/com/marcador/crud/controller/TestController.java
+/home/anderson/marcador-app/marcadorcrud-api-java/src/main/java/com/marcador/crud/dto/CreateEquipoRequest.java
+/home/anderson/marcador-app/marcadorcrud-api-java/src/main/java/com/marcador/crud/dto/CreateJugadorRequest.java
+/home/anderson/marcador-app/marcadorcrud-api-java/src/main/java/com/marcador/crud/dto/EquipoDto.java
+/home/anderson/marcador-app/marcadorcrud-api-java/src/main/java/com/marcador/crud/dto/JugadorDto.java
+/home/anderson/marcador-app/marcadorcrud-api-java/src/main/java/com/marcador/crud/dto/JugadorMiniDto.java
+/home/anderson/marcador-app/marcadorcrud-api-java/src/main/java/com/marcador/crud/dto/UpdateEquipoRequest.java
+/home/anderson/marcador-app/marcadorcrud-api-java/src/main/java/com/marcador/crud/entity/Equipo.java
+/home/anderson/marcador-app/marcadorcrud-api-java/src/main/java/com/marcador/crud/entity/Jugador.java
+/home/anderson/marcador-app/marcadorcrud-api-java/src/main/java/com/marcador/crud/ping/PingController.java
+/home/anderson/marcador-app/marcadorcrud-api-java/src/main/java/com/marcador/crud/repository/EquipoRepository.java
+/home/anderson/marcador-app/marcadorcrud-api-java/src/main/java/com/marcador/crud/repository/JugadorRepository.java
+/home/anderson/marcador-app/marcadorcrud-api-java/src/main/java/com/marcador/crud/service/EquipoService.java
+/home/anderson/marcador-app/marcadorcrud-api-java/src/main/java/com/marcador/crud/service/JugadorService.java

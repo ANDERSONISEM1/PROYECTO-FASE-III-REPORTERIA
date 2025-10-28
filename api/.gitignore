@@ -1,0 +1,51 @@
+# ===============================
+# ⚙️ .NET / C# API – Git Ignore
+# ===============================
+
+# Archivos de sistema
+.vscode/
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# Archivos de usuario y de IDE
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.idea/
+.vs/
+_ReSharper*/
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# Compilados y temporales
+bin/
+obj/
+*.exe
+*.dll
+*.pdb
+*.cache
+*.log
+*.tmp
+*.bak
+*.old
+*.swp
+
+# Configuración local (no subir credenciales ni dev settings)
+appsettings.Development.json
+appsettings.Local.json
+
+# Publicación
+publish/
+artifacts/
+
+# Archivos de entorno
+.env
+.env.*
+
+# Docker (mantener docker-compose y .dockerignore)
+docker-compose.override.yml
+docker-compose.debug.yml
+*.pid

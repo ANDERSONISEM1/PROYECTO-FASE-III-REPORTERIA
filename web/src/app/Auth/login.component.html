@@ -1,0 +1,45 @@
+<div class="login-wrap">
+  <aside class="card">
+    <div class="header"><h3>Bienvenido</h3></div>
+
+    <form (ngSubmit)="submit()" #f="ngForm" class="form">
+      <label class="field">
+        <span>Usuario</span>
+        <input type="text" [(ngModel)]="username" name="username" required />
+      </label>
+
+      <label class="field">
+        <span>Contraseña</span>
+        <input
+          type="password"
+          [(ngModel)]="password"
+          name="password"
+          required
+        />
+      </label>
+
+      <button class="btn primary" [disabled]="f.invalid || loading">
+        {{ loading ? "Ingresando…" : "Iniciar sesión" }}
+      </button>
+
+      <div class="or"><span>o</span></div>
+
+      <button
+        type="button"
+        class="btn github"
+        (click)="loginWithGithub()"
+        [disabled]="loading"
+      >
+        <img
+          src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg"
+          alt="GitHub"
+          width="20"
+          height="20"
+        />
+        <span>{{ loading ? "Conectando…" : "Entrar con GitHub" }}</span>
+      </button>
+
+      <p class="note" *ngIf="error">{{ error }}</p>
+    </form>
+  </aside>
+</div>

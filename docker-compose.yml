@@ -1,0 +1,234 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver2022
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD}"
+      MSSQL_PID: "Developer"
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+      - ./sql:/scripts:ro
+    healthcheck:
+      test: [ "CMD", "/opt/mssql-tools18/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "${MSSQL_SA_PASSWORD}", "-C", "-Q", "SELECT 1" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  db-init:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD}"
+    volumes:
+      - ./sql:/scripts:ro
+    entrypoint: ["/bin/bash", "-lc"]
+    command: >
+      "/opt/mssql-tools18/bin/sqlcmd -S sqlserver -U sa -P ${MSSQL_SA_PASSWORD} -C -i /scripts/init.sql"
+    restart: "no"
+    networks:
+      - app-network
+
+  # ======== MySQL para reportería (solo root) ========
+  mysql:
+    image: mysql:8.0
+    container_name: mb_report_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+    command: ["--default-authentication-plugin=mysql_native_password"]
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./MYSQL/REPORTERIA.sql:/docker-entrypoint-initdb.d/01_REPORTERIA.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -p${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # Opcional: phpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: mb_report_pma
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+    ports:
+      - "8082:80"
+    depends_on:
+      - mysql
+    networks:
+      - app-network
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    image: marcador-api:prod
+    container_name: marcador-api
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Production"
+      ASPNETCORE_URLS: "http://0.0.0.0:5080"
+      ConnectionStrings__Default: "Server=sqlserver,1433;Database=MarcadorBasket;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;"
+      Jwt__Issuer: "MarcadorBasket"
+      Jwt__Audience: "MarcadorBasket.Client"
+      Jwt__Key: "${JWT_KEY}"
+      Jwt__AccessTokenMinutes: "480"
+    ports:
+      - "5080:5080"
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./web
+    image: marcador-frontend:latest
+    container_name: marcador-frontend
+    depends_on:
+      - api
+    ports:
+      - "4200:80"
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # ======== Laravel (reportería) ========
+  laravel-app:
+    build:
+      context: ./reporteria
+      dockerfile: Dockerfile
+    image: marcador-reporteria:latest
+    container_name: mb_laravel_app
+    environment:
+      APP_ENV: "local"
+      APP_DEBUG: "true"
+      APP_URL: "http://localhost"
+      # Evita requerir tablas de cache/sesión/colas
+      CACHE_DRIVER: "file"
+      SESSION_DRIVER: "file"
+      QUEUE_CONNECTION: "sync"
+      # MySQL (datamart)
+      DB_CONNECTION: "mysql"
+      DB_HOST: "mysql"
+      DB_PORT: "3306"
+      DB_DATABASE: "mb_report"
+      DB_USERNAME: "root"
+      DB_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      # SQL Server (origen)
+      SQLSRV_HOST: "sqlserver"
+      SQLSRV_PORT: "1433"
+      SQLSRV_DATABASE: "MarcadorBasket"
+      SQLSRV_USERNAME: "sa"
+      SQLSRV_PASSWORD: "${MSSQL_SA_PASSWORD}"
+    ports:
+      - "8000:8000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      sqlserver:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # ======== One-shot: limpia cachés y permisos Laravel ========
+  laravel-init:
+    build:                # <-- evita el "pull access denied"
+      context: ./reporteria
+      dockerfile: Dockerfile
+    image: marcador-reporteria:latest
+    depends_on:
+      laravel-app:
+        condition: service_started
+    entrypoint: ["/bin/bash", "-lc"]
+    command: >
+      "cd /var/www/html &&
+       php artisan config:clear &&
+       php artisan cache:clear &&
+       php artisan route:clear &&
+       mkdir -p storage/framework/{cache,sessions,views} bootstrap/cache &&
+       chown -R www-data:www-data storage bootstrap/cache &&
+       chmod -R 775 storage bootstrap/cache"
+    restart: "no"
+    networks:
+      - app-network
+  # ======== Java Spring Boot API (Marcador CRUD) ========
+  java-api:
+    build:
+      context: ./marcadorcrud-api-java
+      dockerfile: Dockerfile
+    image: marcadorcrud-api-java:latest
+    container_name: marcadorcrud-api-java
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:sqlserver://sqlserver:1433;databaseName=MarcadorBasket;encrypt=false;trustServerCertificate=true"
+      SPRING_DATASOURCE_USERNAME: "sa"
+      SPRING_DATASOURCE_PASSWORD: "${MSSQL_SA_PASSWORD}"
+      SERVER_PORT: "5081"
+    ports:
+      - "5081:5081"
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # ======== Python FastAPI (Marcador Python API) ========
+  python-api:
+    build:
+      context: ./python-api
+      dockerfile: Dockerfile.ubuntu
+    image: marcador-python-api:latest
+    container_name: marcador-python-api
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+    environment:
+      ENVIRONMENT: "production"
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      JWT_KEY: "${JWT_KEY}"
+      PORT: "5082"
+      # Database connections
+      SQLSERVER_HOST: "sqlserver"
+      SQLSERVER_PORT: "1433"
+      SQLSERVER_DATABASE: "MarcadorBasket"
+      SQLSERVER_USERNAME: "sa"
+      MYSQL_HOST: "mysql"
+      MYSQL_PORT: "3306"
+      MYSQL_DATABASE: "mb_report"
+      MYSQL_USERNAME: "root"
+    ports:
+      - "5082:5082"
+    restart: unless-stopped
+    networks:
+      - app-network
+
+
+volumes:
+  mssql_data:
+    driver: local
+  mysql_data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge

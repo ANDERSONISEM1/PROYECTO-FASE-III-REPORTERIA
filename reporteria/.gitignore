@@ -1,0 +1,57 @@
+# ========================================
+# 🚀 Laravel Project – Git Ignore
+# ========================================
+
+# Archivos de sistema
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Archivos de entorno (⚠️ nunca subir)
+.env
+.env.*
+!.env.example
+
+# Dependencias
+/vendor/
+node_modules/
+
+# Cachés, logs y sesiones
+/storage/*.key
+/storage/app/public/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/framework/testing/*
+/storage/logs/*
+
+# Compilados y builds
+/public/hot
+/public/storage
+/public/build
+/public/mix-manifest.json
+
+# Archivos de paquetes
+npm-debug.log
+yarn-error.log
+package-lock.json
+pnpm-lock.yaml
+
+# Archivos de Composer
+composer.lock
+
+# IDEs y editores
+.idea/
+*.iml
+*.sublime-*
+*.bak
+*.tmp
+
+# Archivos de pruebas locales
+phpunit.xml
+.phpunit.result.cache
+test_sqlsrv.php
+
+# Otros archivos temporales
+*.log
+*.cache

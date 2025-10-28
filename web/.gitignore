@@ -1,0 +1,46 @@
+# ========================================
+# ⚡ Angular / Frontend Web – Git Ignore
+# ========================================
+
+# Archivos de sistema y editor
+.vscode/
+.angular/
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# Archivos de entorno locales
+.env
+.env.*
+!.env.example
+.env.local
+.env.development
+.env.production
+
+# Dependencias
+node_modules/
+
+# Carpeta de compilación / builds
+dist/
+build/
+tmp/
+.cache/
+out-tsc/
+coverage/
+
+# Archivos de bloqueo y logs
+package-lock.json
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# IDEs y herramientas
+.idea/
+*.iml
+*.sublime-*
+*.bak
+*.tmp
+
+# Configuración de proxy local (si contiene IPs privadas)
+# proxy.conf.json
