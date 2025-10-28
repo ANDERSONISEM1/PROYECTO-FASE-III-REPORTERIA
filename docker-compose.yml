@@ -168,6 +168,7 @@ services:
     restart: "no"
     networks:
       - app-network
+
   # ======== Java Spring Boot API (Marcador CRUD) ========
   java-api:
     build:
@@ -193,7 +194,7 @@ services:
   python-api:
     build:
       context: ./python-api
-      dockerfile: Dockerfile.ubuntu
+      dockerfile: Dockerfile  # ← CORREGIDO: Cambié "Dockerfile.ubuntu" por "Dockerfile"
     image: marcador-python-api:latest
     container_name: marcador-python-api
     depends_on:
@@ -221,7 +222,6 @@ services:
     restart: unless-stopped
     networks:
       - app-network
-
 
 volumes:
   mssql_data:
