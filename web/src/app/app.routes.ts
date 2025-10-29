@@ -13,11 +13,13 @@ import { InicioComponent } from './pages/inicio/inicio.component';
 import { AjustesComponent } from './pages/ajustes/ajustes.component';
 import { ReporteriaComponent } from './pages/Reporteria/reporteria.component';
 import { OauthGithubComponent } from './Auth/oauth-github.component';
+import { OauthGoogleComponent } from './Auth/oauth-google.component';
 
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'oauth/github', component: OauthGithubComponent },
+  { path: 'oauth/google', component: OauthGoogleComponent },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   // Layout (ambos roles ven Inicio en layout)
   {
