@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 export interface LoginResponse {
   accessToken: string;
@@ -69,4 +70,14 @@ export class AuthService {
         { code, state }
       )
     );
+  }
+
+  // Nuevo método auxiliar
+  getGoogleUrl(): Promise<{ authorizeUrl: string; state: string }> {
+    return firstValueFrom(
+      this.http.get<{ authorizeUrl: string; state: string }>(
+        `${this.APILOGIN}/auth/google/url`
+      )
+    );
+  }
 }
