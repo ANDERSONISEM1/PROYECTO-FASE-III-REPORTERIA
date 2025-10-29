@@ -55,4 +55,18 @@ export class AuthService {
       )
     );
   }
+  // 3) Iniciar Google OAuth
+  async loginGoogle() {
+    const { authorizeUrl } = await this.getGoogleUrl();
+    window.location.href = authorizeUrl;
+  }
+
+  // 4) Intercambiar el code devuelto por Google
+  exchangeGoogleCode(code: string, state: string): Promise<LoginResponse> {
+    return firstValueFrom(
+      this.http.post<LoginResponse>(
+        `${this.APILOGIN}/auth/google/exchange`,
+        { code, state }
+      )
+    );
 }
