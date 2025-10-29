@@ -12,6 +12,7 @@ const loginRoutes = require("./routes/auth.login");
 const registerRoutes = require("./routes/auth.register");
 const healthRoutes = require("./routes/health");
 const githubAuthRoutes = require("./routes/auth.github");
+const googleAuthRoutes = require("./routes/auth.google");
 
 async function bootstrap() {
   await connect();
@@ -58,6 +59,7 @@ async function bootstrap() {
   app.use("/", healthRoutes);
 
   app.use(githubAuthRoutes);
+  app.use(googleAuthRoutes);
 
   const port = process.env.PORT || 3000;
   app.listen(port, () =>
