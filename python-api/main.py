@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 from app.database import engine, Base
 # from app.routers import auth, users, games, teams, integration, admin  # Temporarily disabled
-from app.controllers import partido_controller
+from app.controllers import partido_controller, inicio_controller
 from app.config import settings
 
 load_dotenv()
@@ -50,6 +50,7 @@ security = HTTPBearer()
 # app.include_router(integration.router, prefix="/api/integration", tags=["Integration"])  # Temporarily disabled
 # app.include_router(admin.router, prefix="/api/admin", tags=["Administration"])  # Temporarily disabled
 app.include_router(partido_controller.router, tags=["Partidos"])
+app.include_router(inicio_controller.router, prefix="/api/admin/inicio", tags=["Inicio"])
 
 @app.get("/")
 async def root():

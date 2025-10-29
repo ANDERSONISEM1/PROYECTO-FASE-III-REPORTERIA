@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { map, Observable } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { map, Observable, of, catchError } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { TokenStorage } from '../../Auth/token-storage.service';
+import { Router } from '@angular/router';
 
 type Estado = 'programado'|'en_curso'|'finalizado'|'cancelado'|'suspendido';
 export type Equipo = { id: number; nombre: string };
@@ -23,13 +25,26 @@ export type Kpis = {
 
 @Injectable({ providedIn: 'root' })
 export class InicioService {
-  // .NET (5080) — KPIs y Dashboard
-  private readonly apiDotnet = `${environment.apiDotNet}/api/inicio`;
+  // PYTHON (5082) — KPIs y Dashboard (cambio de .NET a Python)
+  private readonly apiPython = `${environment.apiPython}/api/admin/inicio`;
 
   // JAVA (5081) — Equipos y Jugadores
   private readonly apiJavaEquipos = `${environment.apiJava}/api/equipos`;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient, 
+    private tokenStorage: TokenStorage,
+    private router: Router
+  ) {}
+
+  // Helper para headers con autorización
+  private getAuthHeaders(): HttpHeaders {
+    const token = this.tokenStorage.accessToken;
+    if (token) {
+      return new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    }
+    return new HttpHeaders();
+  }
 
   // ===== EQUIPOS (Java :5081) =====
   getEquipos(): Observable<Equipo[]> {
@@ -39,20 +54,39 @@ export class InicioService {
     );
   }
 
-  // ===== KPIs (.NET :5080) =====
+  // ===== KPIs (Python :5082) =====
   getKpis(): Observable<Kpis> {
-    return this.http.get<any>(`${this.apiDotnet}/kpis`).pipe(
+    if (!this.tokenStorage.isLogged()) {
+      this.router.navigate(['/login']);
+      return of({ totalEquipos: 0, totalJugadores: 0, partidosPendientes: 0 });
+    }
+
+    const headers = this.getAuthHeaders();
+    return this.http.get<any>(`${this.apiPython}/kpis`, { headers }).pipe(
       map(r => ({
         totalEquipos: r.totalEquipos ?? 0,
         totalJugadores: r.totalJugadores ?? 0,
         partidosPendientes: r.partidosPendientes ?? 0
-      } as Kpis))
+      } as Kpis)),
+      catchError(error => {
+        if (error.status === 401) {
+          this.tokenStorage.clear();
+          this.router.navigate(['/login']);
+        }
+        return of({ totalEquipos: 0, totalJugadores: 0, partidosPendientes: 0 });
+      })
     );
   }
 
-  // ===== Próximo (.NET :5080) =====
+  // ===== Próximo (Python :5082) =====
   getProximo(): Observable<ProximoPartido | null> {
-    return this.http.get<any>(`${this.apiDotnet}/proximo`, { observe: 'response' }).pipe(
+    if (!this.tokenStorage.isLogged()) {
+      this.router.navigate(['/login']);
+      return of(null);
+    }
+
+    const headers = this.getAuthHeaders();
+    return this.http.get<any>(`${this.apiPython}/proximo`, { headers, observe: 'response' }).pipe(
       map(res => {
         if (res.status === 204) return null;
         const r = res.body;
@@ -65,6 +99,13 @@ export class InicioService {
           sede: r.sede || '',
           estado: (r.estado || 'programado') as Estado
         } as ProximoPartido;
+      }),
+      catchError(error => {
+        if (error.status === 401) {
+          this.tokenStorage.clear();
+          this.router.navigate(['/login']);
+        }
+        return of(null);
       })
     );
   }
