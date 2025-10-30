@@ -15,7 +15,9 @@ import { AuthService } from './auth.service';
 export class LoginComponent {
   username = ''; password = ''; loading = false; error = '';
   constructor(private store: TokenStorage, private router: Router, private auth: AuthService) { }
-
+  loginWithGoogle() {
+    this.auth.loginGoogle();
+  }
   loginWithGithub() {
     this.auth.loginGithub();
   }
