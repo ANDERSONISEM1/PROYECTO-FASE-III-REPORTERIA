@@ -210,3 +210,211 @@
   cursor: not-allowed;
   box-shadow: none;
 }
+
+/* ============================
+   CSS DEL LOADER DE GOOGLE IMPLEMENTACION DE LOADER+CARGA
+   ============================ */
+
+.oauth-loader-backdrop {
+  inset: 0;
+  position: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(3, 6, 12, 0.56);
+  z-index: 1200;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  padding: 18px;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+}
+
+.oauth-loader-card {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius: 14px;
+  padding: 20px 26px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.04);
+  min-width: 320px;
+  max-width: 90vw;
+}
+
+.ring {
+  width: 110px;
+  height: 110px;
+  display: block;
+  flex: 0 0 auto;
+}
+
+.ring-bg {
+  fill: none;
+  stroke: rgba(255,255,255,0.04);
+  stroke-width: 8;
+}
+
+.ring-stroke {
+  fill: none;
+  stroke-width: 8;
+  stroke-linecap: round;
+  transform-origin: 60px 60px;
+  transform: rotate(-90deg);
+  stroke-dasharray: 276.46;
+  stroke-dashoffset: 276.46;
+  animation: ringDrawG 1.6s cubic-bezier(.2,.9,.2,1) forwards, ringSpinG 2.6s linear infinite;
+  filter: drop-shadow(0 3px 8px rgba(240,100,120,0.20));
+}
+
+.loader-text {
+  color: #fff7ee;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  margin-left: 4px;
+}
+
+.loader-text .title {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #fff8f0;
+  letter-spacing: 0.2px;
+}
+
+.loader-text .provider {
+  color: #9fd7ea;
+  font-weight: 600;
+  font-size: 0.98rem;
+}
+
+@media (max-width: 420px) {
+  .oauth-loader-card { 
+    flex-direction: column; 
+    gap: 12px; 
+    padding: 18px; 
+  }
+  .loader-text { 
+    align-items: center; 
+    text-align: center; 
+  }
+}
+
+@keyframes ringDrawG {
+  0% { stroke-dashoffset: 276.46; opacity: 0.0; transform: rotate(-90deg) scale(0.98); }
+  50% { opacity: 1; }
+  100% { stroke-dashoffset: 55; transform: rotate(-90deg) scale(1); }
+}
+
+@keyframes ringSpinG {
+  0% { transform: rotate(-90deg); }
+  100% { transform: rotate(270deg); }
+}
+
+
+
+/* ============================
+   CSS DEL LOADER DE GITHUB IMPLEMENTACION DE LOADER+CARGA
+   ============================ */
+
+.oauth-loader-backdrop {
+  inset: 0;
+  position: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(4, 8, 15, 0.55);
+  z-index: 1200;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  padding: 18px;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+}
+
+.oauth-loader-card {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius: 14px;
+  padding: 20px 26px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.04);
+  min-width: 320px;
+  max-width: 90vw;
+}
+
+.ring {
+  width: 110px;
+  height: 110px;
+  display: block;
+  flex: 0 0 auto;
+}
+
+.ring-bg {
+  fill: none;
+  stroke: rgba(255,255,255,0.04);
+  stroke-width: 8;
+}
+
+.ring-stroke {
+  fill: none;
+  stroke-width: 8;
+  stroke-linecap: round;
+  transform-origin: 60px 60px;
+  transform: rotate(-90deg);
+  stroke-dasharray: 276.46;
+  stroke-dashoffset: 276.46;
+  animation: ringDraw 1.6s cubic-bezier(.2,.9,.2,1) forwards, ringSpin 2.6s linear infinite;
+  filter: drop-shadow(0 3px 8px rgba(11,107,143,0.25));
+}
+
+.loader-text {
+  color: #dff6ff;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  margin-left: 4px;
+}
+
+.loader-text .title {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #e7fbff;
+  letter-spacing: 0.2px;
+}
+
+.loader-text .provider {
+  color: #9fd7ea;
+  font-weight: 600;
+  font-size: 0.98rem;
+}
+
+@media (max-width: 420px) {
+  .oauth-loader-card { 
+    flex-direction: column; 
+    gap: 12px; 
+    padding: 18px; 
+  }
+  .loader-text { 
+    align-items: center; 
+    text-align: center; 
+  }
+}
+
+@keyframes ringDraw {
+  0% { stroke-dashoffset: 276.46; opacity: 0.0; transform: rotate(-90deg) scale(0.98); }
+  50% { opacity: 1; }
+  100% { stroke-dashoffset: 55; transform: rotate(-90deg) scale(1); }
+}
+
+@keyframes ringSpin {
+  0% { transform: rotate(-90deg); }
+  100% { transform: rotate(270deg); }
+}
