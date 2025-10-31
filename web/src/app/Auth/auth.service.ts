@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
+
 export interface LoginResponse {
   accessToken: string;
   expiresAtUtc: string;
@@ -12,20 +12,14 @@ export interface LoginResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private API = environment.apiBase; // <- usa environment
-  private APILOGIN = environment.apiBaseLogin;
+  private API = environment.apiBase;            // compat
+  private APILOGIN = environment.apiBaseLogin;  // tu API de auth
+  // base del frontend ya detrás de Cloudflare (si no está en env, usa origin actual)
+  private FRONT = (environment as any).frontBase ?? window.location.origin;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  // 1) Obtener la URL de autorización (incluye state firmado)
-  getGithubUrl(): Promise<{ authorizeUrl: string; state: string }> {
-    return firstValueFrom(
-      this.http.get<{ authorizeUrl: string; state: string }>(
-        `${this.APILOGIN}/auth/github/url`
-      )
-    );
-  }
-
+  // ----- Credenciales normales -----
   login(username: string, password: string): Promise<LoginResponse> {
     return firstValueFrom(
       this.http.post<LoginResponse>(
@@ -35,19 +29,7 @@ export class AuthService {
       )
     );
   }
-  // 2) Iniciar GitHub OAuth
-  async loginGithub() {
-    const { authorizeUrl } = await this.getGithubUrl();
-    window.location.href = authorizeUrl;
-  }
-  exchangeGithubCode(code: string, state: string): Promise<LoginResponse> {
-    return firstValueFrom(
-      this.http.post<LoginResponse>(
-        `${this.APILOGIN}/auth/github/exchange`,
-        { code, state }
-      )
-    );
-  }
+
   getMe(): Promise<Pick<LoginResponse, 'username' | 'roles'>> {
     return firstValueFrom(
       this.http.get<Pick<LoginResponse, 'username' | 'roles'>>(
@@ -56,13 +38,50 @@ export class AuthService {
       )
     );
   }
-  // 3) Iniciar Google OAuth
-  async loginGoogle() {
-    const { authorizeUrl } = await this.getGoogleUrl();
-    window.location.href = authorizeUrl;
+
+  // =========================================================
+  //                    OAUTH - GITHUB
+  // =========================================================
+  getGithubUrl(): Promise<{ authorizeUrl: string; state: string }> {
+    return firstValueFrom(
+      this.http.get<{ authorizeUrl: string; state: string }>(
+        `${this.APILOGIN}/auth/github/url`
+      )
+    );
   }
 
-  // 4) Intercambiar el code devuelto por Google
+  // ⬇️ Redirige a /edge-check primero (Cloudflare muestra el challenge),
+  //    y luego a authorizeUrl
+  async loginGithub() {
+    const { authorizeUrl } = await this.getGithubUrl();
+    this.redirectViaEdge(authorizeUrl);
+  }
+
+  exchangeGithubCode(code: string, state: string): Promise<LoginResponse> {
+    return firstValueFrom(
+      this.http.post<LoginResponse>(
+        `${this.APILOGIN}/auth/github/exchange`,
+        { code, state }
+      )
+    );
+  }
+
+  // =========================================================
+  //                    OAUTH - GOOGLE
+  // =========================================================
+  getGoogleUrl(): Promise<{ authorizeUrl: string; state: string }> {
+    return firstValueFrom(
+      this.http.get<{ authorizeUrl: string; state: string }>(
+        `${this.APILOGIN}/auth/google/url`
+      )
+    );
+  }
+
+  async loginGoogle() {
+    const { authorizeUrl } = await this.getGoogleUrl();
+    this.redirectViaEdge(authorizeUrl);
+  }
+
   exchangeGoogleCode(code: string, state: string): Promise<LoginResponse> {
     return firstValueFrom(
       this.http.post<LoginResponse>(
@@ -72,12 +91,11 @@ export class AuthService {
     );
   }
 
-  // Nuevo método auxiliar
-  getGoogleUrl(): Promise<{ authorizeUrl: string; state: string }> {
-    return firstValueFrom(
-      this.http.get<{ authorizeUrl: string; state: string }>(
-        `${this.APILOGIN}/auth/google/url`
-      )
-    );
+  // =========================================================
+  //              Util: pasar por Cloudflare primero
+  // =========================================================
+  private redirectViaEdge(targetUrl: string) {
+    const url = `${this.FRONT}/edge-check?to=${encodeURIComponent(targetUrl)}`;
+    window.location.href = url; // Cloudflare intercepta /edge-check y muestra el challenge
   }
 }
