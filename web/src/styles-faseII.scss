@@ -761,3 +761,54 @@ select:focus, input[type="date"]:focus{ border-color:#d7c7a5; box-shadow:0 0 0 3
 @media (max-width: 1024px) { .filter-bar { grid-template-columns: repeat(3, minmax(160px, 1fr)); } }
 @media (max-width: 768px)  { .filter-bar { grid-template-columns: repeat(2, minmax(150px, 1fr)); } .actions { justify-content: center; } }
 @media (max-width: 520px)  { .main{ padding:22px } .filter-bar { grid-template-columns: 1fr; } .actions { flex-direction: column; width: 100%; } .btn { width: 100%; } }
+
+
+/* en el tablero que dice BIEVENIDO AL USUARIO ESTA PARTE DEL CSS ES */
+/* ====== Bloque Bienvenida (sidebar limpio, sin fondo transparente) ====== */
+.welcome-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 6px;
+  padding: 14px 10px 12px;
+  margin: 2px 16px -5px;
+  border-radius: 12px;
+  /* ❌ Fondo, borde y sombra eliminados */
+}
+
+.welcome-title {
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  font-weight: 800;
+  color: #eef3ff;
+  opacity: 0.95;
+}
+
+.welcome-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1;
+}
+
+.welcome-text {
+  font-weight: 800;
+  font-size: 1.02rem;
+  color: #eef3ff;
+  letter-spacing: 0.2px;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+}
+
+@media (max-width: 920px) {
+  .welcome-block {
+    margin: 2px 6px 8px;
+    padding: 12px 8px;
+  }
+  .welcome-text {
+    font-size: 0.98rem;
+  }
+}
+
+/* en el tablero que dice BIEVENIDO AL USUARIO ESTA PARTE DEL CSS ES */
