@@ -11,7 +11,7 @@ COPY tsconfig*.json ./
 
 # Instala dependencias de forma reproducible
 RUN npm ci
-#aca siempre es normal
+
 # Copia el resto del código y construye
 COPY . .
 RUN rm -rf dist && npm run build -- --configuration=production-docker
