@@ -56,7 +56,10 @@ El sistema implementa autenticación segura mediante JSON Web Tokens (JWT) para 
 
 ![Pantalla de inicio de sesión](img/login.png)
 
+### Iniciar sesión con Google o Github
+**Nota:** En caso de no contar con credenciales, usuario puede iniciar sesion con Google o Github.
 
+![Pantalla de inicio de sesión](img/Login-oauth.png)
 
 ### Cierre de sesión
 - Presione **Salir** (parte inferior izquierda).  
@@ -436,3 +439,4 @@ A continuación se presenta una lista de preguntas y respuestas comunes que ayud
 
 
 © 2025 Sistema Web de Marcador y Reportería de Baloncesto
+
